@@ -39,8 +39,8 @@ public class Challenge extends BaseEntity {
     @JoinColumn(name = "creator_id", nullable = false)
     private User creator;
 
-    @ManyToMany(mappedBy = "joinedChallenges")
-    private List<User> participants = new ArrayList<>();
+    @OneToMany(mappedBy = "challenge")
+    private List<Participant> participants = new ArrayList<>();
 
     @Builder
     public Challenge(User creator, Category category, String description, String title) {

@@ -1,6 +1,7 @@
 package com.fizz.fizz_server.domain.user.domain;
 
 import com.fizz.fizz_server.domain.challenge.domain.Challenge;
+import com.fizz.fizz_server.domain.challenge.domain.Participant;
 import com.fizz.fizz_server.domain.comment.domain.Comment;
 import com.fizz.fizz_server.domain.comment.domain.CommentLike;
 import com.fizz.fizz_server.domain.post.domain.Post;
@@ -60,13 +61,8 @@ public class User extends BaseEntity {
     @OneToMany(mappedBy = "user")
     private Set<CommentLike> commentLikes = new HashSet<>();
 
-    @ManyToMany
-    @JoinTable(
-            name = "user_challenge",
-            joinColumns = @JoinColumn(name = "user_id"),
-            inverseJoinColumns = @JoinColumn(name = "challenge_id")
-    )
-    private List<Challenge> joinedChallenges = new ArrayList<>();
+    @OneToMany(mappedBy = "user")
+    private List<Participant> participants = new ArrayList<>();
 
     @Builder
     public User(String nickname, String profileId, String profileImage, String email, String aboutMe, RoleType role) {
