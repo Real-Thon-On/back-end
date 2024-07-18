@@ -18,8 +18,11 @@ public enum ExceptionType {
     // user
 
     // challenge
+    NON_EXISTENT_CHALLENGE_ERROR(BAD_REQUEST,"C006","존재하지 않는 챌린지"),
+
 
     // category
+    NON_EXISTENT_CATEGORY_ERROR(BAD_REQUEST,"C005","존재하지 않는 카테고리")
 
     // post
 
