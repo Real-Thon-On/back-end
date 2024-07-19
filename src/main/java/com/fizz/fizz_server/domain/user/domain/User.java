@@ -1,5 +1,6 @@
 package com.fizz.fizz_server.domain.user.domain;
 
+import com.fizz.fizz_server.domain.category.domain.CategoryRecommendation;
 import com.fizz.fizz_server.domain.challenge.domain.Challenge;
 import com.fizz.fizz_server.domain.challenge.domain.Participant;
 import com.fizz.fizz_server.domain.comment.domain.Comment;
@@ -63,6 +64,11 @@ public class User extends BaseEntity {
 
     @OneToMany(mappedBy = "user")
     private List<Participant> participants = new ArrayList<>();
+
+
+    @OneToMany(mappedBy = "user")
+    private List<CategoryRecommendation> recommendations = new ArrayList<>();
+
 
     @Builder
     public User(String nickname, String profileId, String profileImage, String email, String aboutMe, RoleType role) {
