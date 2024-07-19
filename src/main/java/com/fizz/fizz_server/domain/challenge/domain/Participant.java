@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
-public class Participant extends BaseEntity {
+public class Participant extends BaseEntity { // 중간테이블
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
