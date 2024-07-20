@@ -2,12 +2,19 @@ package com.fizz.fizz_server.domain.file.service;
 
 import com.amazonaws.HttpMethod;
 import com.amazonaws.services.s3.model.*;
+import com.fizz.fizz_server.domain.file.domain.File;
 import com.fizz.fizz_server.domain.file.dto.request.FinishUploadRequest;
 import com.fizz.fizz_server.domain.file.dto.request.PreSignedUploadInitiateRequest;
 import com.fizz.fizz_server.domain.file.dto.request.PreSignedUrlCreateRequest;
+import com.fizz.fizz_server.domain.file.repository.FileRepository;
+import com.fizz.fizz_server.domain.post.domain.Post;
+import com.fizz.fizz_server.domain.post.repository.PostRepository;
+import com.fizz.fizz_server.global.base.response.exception.BusinessException;
+import com.fizz.fizz_server.global.base.response.exception.ExceptionType;
 import com.fizz.fizz_server.global.config.properties.AwsS3Properties;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.net.URLConnection;
 import java.time.LocalDateTime;
@@ -22,12 +29,25 @@ public class FileService {
 
     public static final String IMAGE = "image";
     public static final String VOD = "vod";
-    private final AwsS3Properties awsS3Properties;
+    public static final String UPLOAD_ID = "uploadId";
+    public static final String PART_NUMBER = "partNumber";
 
-    public InitiateMultipartUploadRequest initiateUpload(PreSignedUploadInitiateRequest request, Long userId) {
-        String rootFolder = getFileTypeRootFolder(request.originalFileName());
-        String objectName = getObjectName(rootFolder, request.fileType(), userId, request.originalFileName());
-        ObjectMetadata objectMetadata = getObjectMetadata(request);
+    private final AwsS3Properties awsS3Properties;
+    private final PostRepository postRepository;
+    private final FileRepository fileRepository;
+
+    @Transactional
+    public InitiateMultipartUploadRequest initiateUpload(PreSignedUploadInitiateRequest request, Long postId) {
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new BusinessException(ExceptionType.POST_NOT_FOUND));
+
+        String fullName = request.originalFileName() + "." + request.fileFormat();
+        String rootFolder = this.determineFileTypeRootFolder(fullName);
+        String uuid = UUID.randomUUID().toString();
+        String objectName = this.constructObjectName(rootFolder, request.fileFormat(), postId, uuid, fullName);
+        ObjectMetadata objectMetadata = this.createObjectMetadata(request, fullName);
+
+        this.saveFileMetadata(request, post, uuid);
 
         return new InitiateMultipartUploadRequest(
                 awsS3Properties.getS3().getBucket(),
@@ -35,30 +55,34 @@ public class FileService {
                 objectMetadata);
     }
 
-    private String getFileTypeRootFolder(String fileType) {
-        String fileExtension = URLConnection.guessContentTypeFromName(fileType);
-        if (fileExtension != null && fileExtension.startsWith(IMAGE)) {
-            return IMAGE;
-        } else {
-            return VOD;
-        }
+    private String determineFileTypeRootFolder(String fullName) {
+        String fileExtension = URLConnection.guessContentTypeFromName(fullName);
+        return (fileExtension != null && fileExtension.startsWith(IMAGE)) ? IMAGE : VOD;
     }
 
-    private String getObjectName(String rootFolder, String fileType, Long userId, String originalFileName) {
-        return String.format("%s/%s/%s/%d/%s/%s",
-                rootFolder,
-                "dev", // TODO. 하드코딩 제거
-                fileType,
-                userId,
-                UUID.randomUUID(),
-                originalFileName);
+    private String constructObjectName(String rootFolder, String fileFormat, Long postId, String uuid, String fullName) {
+        return String.format("%s/dev/%s/%d/%s/%s", // TODO. 하드코딩 제거
+                rootFolder, fileFormat, postId, uuid, fullName);
     }
 
-    private ObjectMetadata getObjectMetadata(PreSignedUploadInitiateRequest request) {
+    private ObjectMetadata createObjectMetadata(PreSignedUploadInitiateRequest request, String fullName) {
         ObjectMetadata objectMetadata = new ObjectMetadata();
         objectMetadata.setContentLength(request.fileSize());
-        objectMetadata.setContentType(URLConnection.guessContentTypeFromName(request.originalFileName()));
+        objectMetadata.setContentType(URLConnection.guessContentTypeFromName(fullName));
         return objectMetadata;
+    }
+
+    private void saveFileMetadata(PreSignedUploadInitiateRequest request, Post post, String uuid) {
+        File file = File.builder()
+                .fileName(request.originalFileName())
+                .mediaType(determineFileTypeRootFolder(request.originalFileName()))
+                .fileFormat(request.fileFormat())
+                .size(request.fileSize())
+                .uuid(uuid)
+                .post(post)
+                .build();
+
+        fileRepository.save(file);
     }
 
     public GeneratePresignedUrlRequest preSignedUrl(PreSignedUrlCreateRequest request) {
@@ -71,8 +95,8 @@ public class FileService {
                         .withMethod(HttpMethod.PUT)
                         .withExpiration(expirationTime); // presigned url 만료 시간 설정
 
-        generatePresignedUrlRequest.addRequestParameter("uploadId", request.uploadId());
-        generatePresignedUrlRequest.addRequestParameter("partNumber", String.valueOf(request.partNumber()));
+        generatePresignedUrlRequest.addRequestParameter(UPLOAD_ID, request.uploadId());
+        generatePresignedUrlRequest.addRequestParameter(PART_NUMBER, String.valueOf(request.partNumber()));
         return generatePresignedUrlRequest;
     }
 
@@ -81,7 +105,12 @@ public class FileService {
                 .map(part -> new PartETag(part.partNumber(), part.eTag()))
                 .toList();
 
-        // TODO. DB 저장 및 업로드 url 설정 (copy 작업 및 job 완료 시에 cloud watch event 는 오직 https 라 고민)
+        /**
+         * TODO. DB 저장 및 업로드 url 설정 (copy 작업 및 job 완료 시에 cloud watch event 는 오직 https 라 고민)
+         * 최종 url
+         * image : {cloudFrontUrl}/{mediaType}/dev/{fileFormat}/{uuid}/{filename}.{fileFormat}
+         * vod : {cloudFrontUrl}/{mediaType}/dev/hls/{uuid}/{filename}.m3u8
+         */
 
         return new CompleteMultipartUploadRequest(
                 awsS3Properties.getS3().getBucket(),

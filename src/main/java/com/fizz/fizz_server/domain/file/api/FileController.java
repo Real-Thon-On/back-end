@@ -7,10 +7,7 @@ import com.fizz.fizz_server.domain.file.dto.request.PreSignedUploadInitiateReque
 import com.fizz.fizz_server.domain.file.dto.request.PreSignedUrlCreateRequest;
 import com.fizz.fizz_server.domain.file.service.FileService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.net.URL;
 
@@ -26,9 +23,10 @@ public class FileController {
      * TODO. userId를 입력받아야 함. (token)
      */
 
-    @PostMapping("/initiate-upload")
-    public InitiateMultipartUploadResult initiateUpload(@RequestBody PreSignedUploadInitiateRequest request) {
-        InitiateMultipartUploadRequest initiateMultipartUploadRequest = fileService.initiateUpload(request, 1L);
+    @PostMapping("/initiate-upload/post/{postId}")
+    public InitiateMultipartUploadResult initiateUpload(@PathVariable Long postId,
+                                                        @RequestBody PreSignedUploadInitiateRequest request) {
+        InitiateMultipartUploadRequest initiateMultipartUploadRequest = fileService.initiateUpload(request, postId);
 
         return amazonS3Client.initiateMultipartUpload(initiateMultipartUploadRequest);
     }
