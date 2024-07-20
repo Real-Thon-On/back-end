@@ -32,6 +32,9 @@ public class Post extends BaseEntity {
     @Column(nullable = false)
     private String content;
 
+    @ElementCollection
+    private List<String> fileUrls = new ArrayList<>();
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
@@ -49,14 +52,12 @@ public class Post extends BaseEntity {
     @OneToMany(mappedBy = "post")
     private List<View> views = new ArrayList<>();
 
-    @OneToMany(mappedBy = "post", cascade = CascadeType.PERSIST)
-    private List<File> files = new ArrayList<>();
-
     @Builder
-    public Post(String title, String content, User user, Challenge challenge) {
+    public Post(String title, String content, User user, Challenge challenge, List<String> fileUrls) {
         this.title = title;
         this.content = content;
         this.user = user;
         this.challenge = challenge;
+        this.fileUrls = fileUrls;
     }
 }
