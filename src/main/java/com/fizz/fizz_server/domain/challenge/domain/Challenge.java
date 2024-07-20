@@ -23,15 +23,11 @@ public class Challenge extends BaseEntity {
     @Column(name = "challenge_id")
     private Long id;
 
-    @Column(nullable = false)
+    @Column(nullable = false, unique = true)
     private String title;
 
     @Column(nullable = false)
     private String description;
-
-    @Column(nullable = false,name = "start_date")
-    private LocalDateTime startDate;
-
 
     @JoinColumn(name = "category_id", nullable = false)
     @ManyToOne(fetch = FetchType.LAZY)
@@ -47,12 +43,15 @@ public class Challenge extends BaseEntity {
     @OneToMany(mappedBy = "challenge")
     private List<Participant> participants = new ArrayList<>();
 
+    @Column(nullable = false)
+    private boolean isActive;
+
     @Builder
-    public Challenge(User creator, Category category, String description, LocalDateTime startDate, String title) {
+    public Challenge(User creator, Category category, String description, boolean isActive,String title) {
         this.creator = creator;
         this.category = category;
         this.description = description;
-        this.startDate = startDate;
+        this.isActive=isActive;
         this.title = title;
     }
 }

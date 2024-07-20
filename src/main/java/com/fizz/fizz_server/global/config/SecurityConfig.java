@@ -37,13 +37,14 @@ public class SecurityConfig {
                 .authorizeHttpRequests((auth) -> auth
                         .requestMatchers("/**").permitAll()
                         .anyRequest().hasRole("ADMIN"))
-                .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .oauth2Login(configure ->
-                        configure.authorizationEndpoint(config -> config.authorizationRequestRepository(httpCookieOAuth2AuthorizationRequestRepository))
-                                .userInfoEndpoint(config -> config.userService(customOAuth2UserService))
-                                .successHandler(oAuth2AuthenticationSuccessHandler)
-                                .failureHandler(oAuth2AuthenticationFailureHandler))
-                .addFilterBefore(new JwtAuthorizationFilter(tokenProvider, authenticationManager), UsernamePasswordAuthenticationFilter.class);
+//                .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+//                .oauth2Login(configure ->
+//                        configure.authorizationEndpoint(config -> config.authorizationRequestRepository(httpCookieOAuth2AuthorizationRequestRepository))
+//                                .userInfoEndpoint(config -> config.userService(customOAuth2UserService))
+//                                .successHandler(oAuth2AuthenticationSuccessHandler)
+//                                .failureHandler(oAuth2AuthenticationFailureHandler))
+//                .addFilterBefore(new JwtAuthorizationFilter(tokenProvider, authenticationManager), UsernamePasswordAuthenticationFilter.class)
+        ;
 
         return http.build();
     }
