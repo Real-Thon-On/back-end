@@ -18,17 +18,19 @@ public class ChallengeInfoResponseDto {
     private Long userId;
     private String title;
     private String description;
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
-    private LocalDateTime startDate;
+    private Boolean isActive;
+    private Integer participantCounts;
 
-    public static ChallengeInfoResponseDto EntityToDTO(Challenge challenge){
+
+    public static ChallengeInfoResponseDto toDTO(Challenge challenge, Integer participantCounts){
         ChallengeInfoResponseDto dto =  new ChallengeInfoResponseDto();
         dto.challengeId =challenge.getId();
         dto.categoryId =challenge.getCategory().getCategoryId();
         dto.userId=challenge.getCreator().getId();
         dto.title=challenge.getTitle();
         dto.description = challenge.getDescription();
-        dto.startDate=challenge.getStartDate();
+        dto.isActive =challenge.isActive();
+        dto.participantCounts = participantCounts;
         return dto;
     }
 

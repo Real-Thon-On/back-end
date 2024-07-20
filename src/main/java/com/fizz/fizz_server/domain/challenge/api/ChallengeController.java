@@ -1,6 +1,7 @@
 package com.fizz.fizz_server.domain.challenge.api;
 
 
+import com.fizz.fizz_server.domain.challenge.dto.request.ChallengeInfoRequestDto;
 import com.fizz.fizz_server.domain.challenge.dto.request.CreateChallengeRequestDto;
 import com.fizz.fizz_server.domain.challenge.dto.response.ChallengeInfoResponseDto;
 import com.fizz.fizz_server.domain.challenge.dto.response.ChallengeSummaryResponseDto;
@@ -14,7 +15,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -27,10 +27,8 @@ public class ChallengeController {
 
     private final ChallengeService challengeService;
 
-
     // UserPrincipal 추후 추가되면 삭제 예정
     private final UserRepository userRepository;
-
 
 
     //챌린지 생성
@@ -42,37 +40,55 @@ public class ChallengeController {
         return ResponseEntity.status(HttpStatus.CREATED) .body(ResponseUtil.createSuccessResponse());
     }
 
-    //챌린지 상세정보
+    //id 기반 챌린지 상세정보 조회
     @GetMapping("/info/{challengeId}")
     public ResponseEntity<ResponseBody<ChallengeInfoResponseDto>> getChallengeInfoByChallengeId(@PathVariable Long challengeId ){
         ChallengeInfoResponseDto responseDto = challengeService.getChallengeInfoByChallengeId(challengeId);
         return ResponseEntity.status(HttpStatus.OK) .body(ResponseUtil.createSuccessResponse( responseDto ));
     }
 
+    //챌린지명(title) 기반 챌린지 상세정보 조회
+    @GetMapping("/info")
+    public ResponseEntity<ResponseBody<ChallengeInfoResponseDto>> getChallengeInfoByChallengeTitle(@Valid @RequestBody ChallengeInfoRequestDto requestDto){
+        ChallengeInfoResponseDto responseDto = challengeService.getChallengeInfoByChallengeTitle(requestDto.getTitle());
+        return ResponseEntity.status(HttpStatus.OK) .body(ResponseUtil.createSuccessResponse( responseDto ));
+    }
+
     //모든 잠든 챌린지 목록
     @GetMapping("/sleep")
     public ResponseEntity<ResponseBody<List<ChallengeSummaryResponseDto>>> getSleepingChallengeList(){
-        return ResponseEntity.status(HttpStatus.OK) .body(ResponseUtil.createSuccessResponse( null ));
+        List<ChallengeSummaryResponseDto> responseDtos = challengeService.getSleepingChallengeList();
+        return ResponseEntity.status(HttpStatus.OK) .body(ResponseUtil.createSuccessResponse( responseDtos ));
     }
-
 
     //모든 활성화 상태 챌린지 목록
     @GetMapping
     public ResponseEntity<ResponseBody<List<ChallengeSummaryResponseDto>>> getActiveChallengeList(){
-        return ResponseEntity.status(HttpStatus.OK) .body(ResponseUtil.createSuccessResponse( null ));
-    }
-
-
-    //특정 카테고리의 활성화 상태 챌린지 목록
-    @GetMapping("/{categoryId}")
-    public ResponseEntity<ResponseBody<List<ChallengeSummaryResponseDto>>> getActiveChallengeListByCategoryId(){
-        return ResponseEntity.status(HttpStatus.OK) .body(ResponseUtil.createSuccessResponse( null ));
+        List<ChallengeSummaryResponseDto> responseDtos = challengeService.getActiveChallengeList();
+        return ResponseEntity.status(HttpStatus.OK) .body(ResponseUtil.createSuccessResponse( responseDtos ));
     }
 
     //특정 카테고리의 잠든 상태 챌린지 목록
     @GetMapping("/sleep/{categoryId}")
-    public ResponseEntity<ResponseBody<List<ChallengeSummaryResponseDto>>> getSleepingChallengeListByCategoryId(){
-        return ResponseEntity.status(HttpStatus.OK) .body(ResponseUtil.createSuccessResponse( null ));
+    public ResponseEntity<ResponseBody<List<ChallengeSummaryResponseDto>>> getSleepingChallengeListByCategoryId(@PathVariable Long categoryId){
+        List<ChallengeSummaryResponseDto> responseDtos = challengeService.getSleepingChallengeListByCategoryId(categoryId);
+        return ResponseEntity.status(HttpStatus.OK) .body(ResponseUtil.createSuccessResponse( responseDtos ));
+    }
+
+    //특정 카테고리의 활성화 상태 챌린지 목록
+    @GetMapping("/{categoryId}")
+    public ResponseEntity<ResponseBody<List<ChallengeSummaryResponseDto>>> getActiveChallengeListByCategoryId(@PathVariable Long categoryId){
+        List<ChallengeSummaryResponseDto> responseDtos = challengeService.getActiveChallengeListByCategoryId(categoryId);
+        return ResponseEntity.status(HttpStatus.OK) .body(ResponseUtil.createSuccessResponse( responseDtos ));
+    }
+
+    //해당 사용자가 생성한 활성화 상태 챌린지 목록
+    @GetMapping("/sleep/user")
+    public ResponseEntity<ResponseBody<List<ChallengeSummaryResponseDto>>> getSleepingChallengeListByUser( ){// parameter 에 @AuthenticationPrincipal UserPrincipal user 추후 추가
+        User tempUser = userRepository.findById(1L).get();
+
+        List<ChallengeSummaryResponseDto> responseDtos = challengeService.getSleepingChallengeListByUser(tempUser);
+        return ResponseEntity.status(HttpStatus.OK) .body(ResponseUtil.createSuccessResponse( responseDtos ));
     }
 
     //해당 사용자가 생성한 활성화 상태 챌린지 목록
@@ -80,17 +96,8 @@ public class ChallengeController {
     public ResponseEntity<ResponseBody<List<ChallengeSummaryResponseDto>>> getActiveChallengeListByUser( ){// parameter 에 @AuthenticationPrincipal UserPrincipal user 추후 추가
         User tempUser = userRepository.findById(1L).get();
 
-
-        return ResponseEntity.status(HttpStatus.OK) .body(ResponseUtil.createSuccessResponse( null ));
-    }
-
-
-    //해당 사용자가 생성한 활성화 상태 챌린지 목록
-    @GetMapping("/sleep/user")
-    public ResponseEntity<ResponseBody<List<ChallengeSummaryResponseDto>>> getSleepingChallengeListByUser( ){// parameter 에 @AuthenticationPrincipal UserPrincipal user 추후 추가
-        User tempUser = userRepository.findById(1L).get();
-
-        return ResponseEntity.status(HttpStatus.OK) .body(ResponseUtil.createSuccessResponse( null ));
+        List<ChallengeSummaryResponseDto> responseDtos = challengeService.getActiveChallengeListByUser(tempUser);
+        return ResponseEntity.status(HttpStatus.OK) .body(ResponseUtil.createSuccessResponse( responseDtos ));
     }
 
 }
