@@ -1,10 +1,8 @@
 package com.fizz.fizz_server.domain.challenge.dto.response;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fizz.fizz_server.domain.challenge.domain.Challenge;
 import lombok.*;
 
-import java.time.LocalDateTime;
 
 
 @ToString
