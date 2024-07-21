@@ -2,7 +2,6 @@ package com.fizz.fizz_server.domain.post.domain;
 
 import com.fizz.fizz_server.domain.challenge.domain.Challenge;
 import com.fizz.fizz_server.domain.comment.domain.Comment;
-import com.fizz.fizz_server.domain.file.domain.File;
 import com.fizz.fizz_server.domain.user.domain.User;
 import com.fizz.fizz_server.global.base.domain.BaseEntity;
 import jakarta.persistence.*;

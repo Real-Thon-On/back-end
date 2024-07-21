@@ -2,15 +2,18 @@ package com.fizz.fizz_server.domain.file.api;
 
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.*;
+import com.fizz.fizz_server.domain.file.dto.request.AwsLambdaCompleteRequest;
 import com.fizz.fizz_server.domain.file.dto.request.FinishUploadRequest;
 import com.fizz.fizz_server.domain.file.dto.request.PreSignedUploadInitiateRequest;
 import com.fizz.fizz_server.domain.file.dto.request.PreSignedUrlCreateRequest;
 import com.fizz.fizz_server.domain.file.service.FileService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URL;
 
+@Slf4j
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/file")
@@ -24,9 +27,17 @@ public class FileController {
      */
 
     @PostMapping("/initiate-upload/post/{postId}")
-    public InitiateMultipartUploadResult initiateUpload(@PathVariable Long postId,
+    public InitiateMultipartUploadResult initiateUploadToPost(@PathVariable Long postId,
                                                         @RequestBody PreSignedUploadInitiateRequest request) {
-        InitiateMultipartUploadRequest initiateMultipartUploadRequest = fileService.initiateUpload(request, postId);
+        InitiateMultipartUploadRequest initiateMultipartUploadRequest = fileService.initiateUpload(request, postId, null);
+
+        return amazonS3Client.initiateMultipartUpload(initiateMultipartUploadRequest);
+    }
+
+    @PostMapping("/initiate-upload")
+    public InitiateMultipartUploadResult initiateUploadToUser(@RequestBody PreSignedUploadInitiateRequest request) {
+        Long userId = 1L;
+        InitiateMultipartUploadRequest initiateMultipartUploadRequest = fileService.initiateUpload(request, null, userId);
 
         return amazonS3Client.initiateMultipartUpload(initiateMultipartUploadRequest);
     }
@@ -45,5 +56,10 @@ public class FileController {
         return amazonS3Client.completeMultipartUpload(completeMultipartUploadRequest);
     }
 
-
+    @PostMapping("/complete-upload/aws-lambda")
+    public String completeUploadAws(@RequestBody AwsLambdaCompleteRequest request) {
+        log.info("type : {} , urls : {}", request.type(), request.urls());
+        log.info("성공");
+        return "성공";
+    }
 }

@@ -2,19 +2,12 @@ package com.fizz.fizz_server.domain.file.service;
 
 import com.amazonaws.HttpMethod;
 import com.amazonaws.services.s3.model.*;
-import com.fizz.fizz_server.domain.file.domain.File;
 import com.fizz.fizz_server.domain.file.dto.request.FinishUploadRequest;
 import com.fizz.fizz_server.domain.file.dto.request.PreSignedUploadInitiateRequest;
 import com.fizz.fizz_server.domain.file.dto.request.PreSignedUrlCreateRequest;
-import com.fizz.fizz_server.domain.file.repository.FileRepository;
-import com.fizz.fizz_server.domain.post.domain.Post;
-import com.fizz.fizz_server.domain.post.repository.PostRepository;
-import com.fizz.fizz_server.global.base.response.exception.BusinessException;
-import com.fizz.fizz_server.global.base.response.exception.ExceptionType;
 import com.fizz.fizz_server.global.config.properties.AwsS3Properties;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.net.URLConnection;
 import java.time.LocalDateTime;
@@ -33,21 +26,13 @@ public class FileService {
     public static final String PART_NUMBER = "partNumber";
 
     private final AwsS3Properties awsS3Properties;
-    private final PostRepository postRepository;
-    private final FileRepository fileRepository;
 
-    @Transactional
-    public InitiateMultipartUploadRequest initiateUpload(PreSignedUploadInitiateRequest request, Long postId) {
-        Post post = postRepository.findById(postId)
-                .orElseThrow(() -> new BusinessException(ExceptionType.POST_NOT_FOUND));
-
+    public InitiateMultipartUploadRequest initiateUpload(PreSignedUploadInitiateRequest request, Long postId, Long userId) {
         String fullName = request.originalFileName() + "." + request.fileFormat();
-        String rootFolder = this.determineFileTypeRootFolder(fullName);
+        String fileType = this.determineFileType(fullName);
         String uuid = UUID.randomUUID().toString();
-        String objectName = this.constructObjectName(rootFolder, request.fileFormat(), postId, uuid, fullName);
+        String objectName = this.constructObjectName(fileType, request.fileFormat(), postId, userId, uuid, fullName);
         ObjectMetadata objectMetadata = this.createObjectMetadata(request, fullName);
-
-        this.saveFileMetadata(request, post, uuid);
 
         return new InitiateMultipartUploadRequest(
                 awsS3Properties.getS3().getBucket(),
@@ -55,14 +40,16 @@ public class FileService {
                 objectMetadata);
     }
 
-    private String determineFileTypeRootFolder(String fullName) {
+
+    private String determineFileType(String fullName) {
         String fileExtension = URLConnection.guessContentTypeFromName(fullName);
         return (fileExtension != null && fileExtension.startsWith(IMAGE)) ? IMAGE : VOD;
     }
 
-    private String constructObjectName(String rootFolder, String fileFormat, Long postId, String uuid, String fullName) {
-        return String.format("%s/dev/%s/%d/%s/%s", // TODO. 하드코딩 제거
-                rootFolder, fileFormat, postId, uuid, fullName);
+    private String constructObjectName(String fileType, String fileFormat, Long postId, Long userId, String uuid, String fullName) {
+        String folderType = (postId != null) ? "post" : "user";
+        return String.format("%s/%s/%s/%d/%s/%s",
+                folderType, fileType, fileFormat, (postId != null ? postId : userId), uuid, fullName);
     }
 
     private ObjectMetadata createObjectMetadata(PreSignedUploadInitiateRequest request, String fullName) {
@@ -70,19 +57,6 @@ public class FileService {
         objectMetadata.setContentLength(request.fileSize());
         objectMetadata.setContentType(URLConnection.guessContentTypeFromName(fullName));
         return objectMetadata;
-    }
-
-    private void saveFileMetadata(PreSignedUploadInitiateRequest request, Post post, String uuid) {
-        File file = File.builder()
-                .fileName(request.originalFileName())
-                .mediaType(determineFileTypeRootFolder(request.originalFileName()))
-                .fileFormat(request.fileFormat())
-                .size(request.fileSize())
-                .uuid(uuid)
-                .post(post)
-                .build();
-
-        fileRepository.save(file);
     }
 
     public GeneratePresignedUrlRequest preSignedUrl(PreSignedUrlCreateRequest request) {
