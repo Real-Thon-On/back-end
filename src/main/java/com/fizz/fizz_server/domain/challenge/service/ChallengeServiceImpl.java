@@ -3,13 +3,13 @@ package com.fizz.fizz_server.domain.challenge.service;
 import com.fizz.fizz_server.domain.category.domain.Category;
 import com.fizz.fizz_server.domain.category.repository.CategoryRepository;
 import com.fizz.fizz_server.domain.challenge.domain.Challenge;
+import com.fizz.fizz_server.domain.challenge.domain.Participant;
 import com.fizz.fizz_server.domain.challenge.dto.request.CreateChallengeRequestDto;
 import com.fizz.fizz_server.domain.challenge.dto.response.ChallengeInfoResponseDto;
 import com.fizz.fizz_server.domain.challenge.dto.response.ChallengeSummaryResponseDto;
 import com.fizz.fizz_server.domain.challenge.repository.ChallengeRepository;
 import com.fizz.fizz_server.domain.challenge.repository.ParticipantRepository;
 import com.fizz.fizz_server.domain.user.domain.User;
-import com.fizz.fizz_server.domain.user.repository.UserRepository;
 import com.fizz.fizz_server.global.base.response.exception.BusinessException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -32,7 +32,6 @@ public class ChallengeServiceImpl implements ChallengeService{
    private final ChallengeRepository challengeRepository;
    private final CategoryRepository categoryRepository;
    private final ParticipantRepository participantRepository;
-   private final UserRepository userRepository;
 
     @Value("${challenge.period.months}")
     private int period;
@@ -44,6 +43,10 @@ public class ChallengeServiceImpl implements ChallengeService{
         Challenge challenge = requestDto.toChallenge(user, category);
         Challenge savedChallenge = challengeRepository.save(challenge);
         log.info(savedChallenge.toString());
+
+        Participant participant = Participant.builder().user(user).challenge(savedChallenge).build();
+        Participant savedParticipant = participantRepository.save(participant);
+        log.info(participant.toString());
     }
 
     @Override

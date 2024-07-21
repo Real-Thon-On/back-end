@@ -1,6 +1,5 @@
 package com.fizz.fizz_server.domain.challenge.domain;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fizz.fizz_server.domain.category.domain.Category;
 import com.fizz.fizz_server.domain.post.domain.Post;
 import com.fizz.fizz_server.domain.user.domain.User;
@@ -8,7 +7,6 @@ import com.fizz.fizz_server.global.base.domain.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
