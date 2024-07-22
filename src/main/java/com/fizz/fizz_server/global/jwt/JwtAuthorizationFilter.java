@@ -37,6 +37,8 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
                 }
             }
         }
+
+        filterChain.doFilter(request, response);
     }
 
     private String resoveToken(HttpServletRequest request) {
