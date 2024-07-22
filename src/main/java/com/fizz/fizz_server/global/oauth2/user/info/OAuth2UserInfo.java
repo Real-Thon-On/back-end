@@ -1,4 +1,6 @@
-package com.fizz.fizz_server.global.oauth2.user;
+package com.fizz.fizz_server.global.oauth2.user.info;
+
+import com.fizz.fizz_server.global.oauth2.user.OAuth2Provider;
 
 import java.util.Map;
 

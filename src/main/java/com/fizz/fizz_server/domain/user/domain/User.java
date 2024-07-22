@@ -8,11 +8,9 @@ import com.fizz.fizz_server.domain.comment.domain.CommentLike;
 import com.fizz.fizz_server.domain.post.domain.Post;
 import com.fizz.fizz_server.domain.post.domain.PostLike;
 import com.fizz.fizz_server.global.base.domain.BaseEntity;
+import com.fizz.fizz_server.global.oauth2.user.OAuth2Provider;
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -29,14 +27,22 @@ public class User extends BaseEntity {
     @Column(name = "user_id")
     private Long id;
 
+    @Setter
     @Column(unique = true)
     private String nickname;
 
+    @Setter
+    @Column(unique = true)
+    private String email;
+
+    private OAuth2Provider provider;
+    private String providerId;
+
     private String profileId;
     private String profileImage;
-    private String email;
     private String aboutMe; // 자기소개
 
+    @Setter
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private RoleType role;
@@ -71,7 +77,9 @@ public class User extends BaseEntity {
 
 
     @Builder
-    public User(String nickname, String profileId, String profileImage, String email, String aboutMe, RoleType role) {
+    public User(OAuth2Provider provider, String providerId, String nickname, String profileId, String profileImage, String email, String aboutMe, RoleType role) {
+        this.provider = provider;
+        this.providerId = providerId;
         this.nickname = nickname;
         this.profileId = profileId;
         this.profileImage = profileImage;

@@ -17,7 +17,10 @@ public enum ExceptionType {
 
     // user
     USER_NOT_FOUND(NOT_FOUND, "U001", "존재하지 않는 사용자"),
-
+    DUPLICATED_NICKNAME(CONFLICT, "U002", "중복 닉네임"),
+    DUPLICATED_EMAIL(CONFLICT, "U003", "중복 이메일"),
+    FORBIDDEN(HttpStatus.FORBIDDEN, "U004", "권한이 없음"),
+    UN_AUTHENTICATION(UNAUTHORIZED, "U005", "인증이 필요함"),
 
     // challenge
     NON_EXISTENT_CHALLENGE_ERROR(BAD_REQUEST,"CH001","존재하지 않는 챌린지"),

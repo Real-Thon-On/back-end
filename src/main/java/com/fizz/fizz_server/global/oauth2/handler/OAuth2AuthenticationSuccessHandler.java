@@ -1,11 +1,15 @@
 package com.fizz.fizz_server.global.oauth2.handler;
 
 import com.fizz.fizz_server.domain.user.domain.RoleType;
+import com.fizz.fizz_server.domain.user.domain.User;
+import com.fizz.fizz_server.domain.user.repository.UserRepository;
+import com.fizz.fizz_server.global.base.response.exception.BusinessException;
+import com.fizz.fizz_server.global.base.response.exception.ExceptionType;
 import com.fizz.fizz_server.global.jwt.TokenProvider;
 import com.fizz.fizz_server.global.oauth2.repository.HttpCookieOAuth2AuthorizationRequestRepository;
 import com.fizz.fizz_server.global.oauth2.service.OAuth2UserPrincipal;
 import com.fizz.fizz_server.global.oauth2.user.OAuth2Provider;
-import com.fizz.fizz_server.global.oauth2.user.OAuth2UserUnlinkManager;
+import com.fizz.fizz_server.global.oauth2.user.unlink.OAuth2UserUnlinkManager;
 import com.fizz.fizz_server.global.utils.CookieUtils;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
@@ -18,6 +22,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.io.IOException;
+import java.util.concurrent.atomic.AtomicReference;
 
 import static com.fizz.fizz_server.global.oauth2.repository.HttpCookieOAuth2AuthorizationRequestRepository.MODE_PARAM_COOKIE_NAME;
 import static com.fizz.fizz_server.global.oauth2.repository.HttpCookieOAuth2AuthorizationRequestRepository.REDIRECT_URI_PARAM_COOKIE_NAME;
@@ -29,6 +34,7 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
     private final HttpCookieOAuth2AuthorizationRequestRepository httpCookieOAuth2AuthorizationRequestRepository;
     private final OAuth2UserUnlinkManager oAuth2UserUnlinkManager;
     private final TokenProvider tokenProvider;
+    private final UserRepository userRepository;
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException {
@@ -61,37 +67,64 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
         }
 
         if (mode.equalsIgnoreCase("login")) {
-            // TODO. DB 저장
-            // TODO. 액세스 토큰, 리프레시 토큰 발급, 리프레시 토큰 DB 저장
-            log.info("email={}, name={}, nickname={}, accessToken={}", principal.getUserInfo().getEmail(),
-                    principal.getUserInfo().getName(),
+            String providerId = principal.getUserInfo().getId();
+            OAuth2Provider provider = principal.getUserInfo().getProvider();
+
+            // 새로운 유저인지 전달 - 우선 쿼리 파라미터에 담지만, 방식 변경 가능
+            AtomicReference<Boolean> isNewUser = new AtomicReference<>(false);
+
+            User user = userRepository.findByProviderAndProviderId(provider, providerId)
+                    .orElseGet(() -> {
+                        isNewUser.set(true);
+                        return createAndSaveNewUser(provider, providerId);
+                    });
+
+            if (user.getRole() == RoleType.ROLE_GUEST) {
+                isNewUser.set(true);
+            }
+
+            String accessToken = tokenProvider.createToken(user.getId(), user.getRole());
+            // 리프레시 토큰 발급, 리프레시 토큰 DB 저장
+
+            log.info("email={}, nickname={}, accessToken={}",
+                    principal.getUserInfo().getEmail(),
                     principal.getUserInfo().getNickname(),
                     principal.getUserInfo().getAccessToken()
             );
 
-            String accessToken = tokenProvider.createToken(authentication.getName(), RoleType.ROLE_USER);
-            // TODO. 리프레시 토큰 구현할 것인가?
-
-
             return UriComponentsBuilder.fromUriString(targetUrl)
-                    // TODO. access token을 쿼리 파라미터로?
+                    .queryParam("is_new_user", isNewUser)
                     .queryParam("access_token", accessToken)
                     // 리프레시 토큰
                     .build().toUriString();
         } else if (mode.equalsIgnoreCase("unlink")) {
             String accessToken = principal.getUserInfo().getAccessToken();
+            String providerId = principal.getUserInfo().getId();
             OAuth2Provider provider = principal.getUserInfo().getProvider();
 
-            // TODO. DB 삭제, 리프레시 토큰 삭제
+            User user = userRepository.findByProviderAndProviderId(provider, providerId)
+                    .orElseThrow(() -> new BusinessException(ExceptionType.USER_NOT_FOUND));
+
+            userRepository.delete(user);
+
             oAuth2UserUnlinkManager.unlink(provider, accessToken);
 
             return UriComponentsBuilder.fromUriString(targetUrl)
                     .build().toUriString();
         }
         return UriComponentsBuilder.fromUriString(targetUrl)
-                // 쿼리 파라미터로 넣어주는 게 맞나2?
                 .queryParam("error", "Login failed")
                 .build().toUriString();
+    }
+
+    private User createAndSaveNewUser(OAuth2Provider provider, String providerId) {
+        User user = User.builder()
+                .provider(provider)
+                .providerId(providerId)
+                .role(RoleType.ROLE_GUEST)
+                .build();
+
+        return userRepository.save(user);
     }
 
     private OAuth2UserPrincipal getOAuth2UserPrincipal(Authentication authentication) {
