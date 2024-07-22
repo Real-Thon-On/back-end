@@ -1,7 +1,7 @@
-package com.fizz.fizz_server.global.oauth2.user;
+package com.fizz.fizz_server.global.oauth2.user.unlink;
 
 import com.fizz.fizz_server.global.oauth2.exception.OAuth2AuthenticationProcessingException;
-import com.fizz.fizz_server.global.oauth2.user.google.GoogleOAuth2UserUnlink;
+import com.fizz.fizz_server.global.oauth2.user.OAuth2Provider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -20,7 +20,6 @@ public class OAuth2UserUnlinkManager {
         } else if (OAuth2Provider.KAKAO.equals(provider)) {
             kakaoOAuth2UserUnlink.unlink(accessToken);
         }
-        // TODO. 다른 것들 추가
         else {
             throw new OAuth2AuthenticationProcessingException("Unlink with " + provider.getRegistrationId() + " is not supported");
         }

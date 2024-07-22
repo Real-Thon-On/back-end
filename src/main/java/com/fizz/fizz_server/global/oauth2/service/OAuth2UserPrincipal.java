@@ -1,6 +1,6 @@
 package com.fizz.fizz_server.global.oauth2.service;
 
-import com.fizz.fizz_server.global.oauth2.user.OAuth2UserInfo;
+import com.fizz.fizz_server.global.oauth2.user.info.OAuth2UserInfo;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.oauth2.core.user.OAuth2User;

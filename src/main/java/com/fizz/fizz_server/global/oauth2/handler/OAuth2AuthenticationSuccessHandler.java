@@ -5,7 +5,7 @@ import com.fizz.fizz_server.global.jwt.TokenProvider;
 import com.fizz.fizz_server.global.oauth2.repository.HttpCookieOAuth2AuthorizationRequestRepository;
 import com.fizz.fizz_server.global.oauth2.service.OAuth2UserPrincipal;
 import com.fizz.fizz_server.global.oauth2.user.OAuth2Provider;
-import com.fizz.fizz_server.global.oauth2.user.OAuth2UserUnlinkManager;
+import com.fizz.fizz_server.global.oauth2.user.unlink.OAuth2UserUnlinkManager;
 import com.fizz.fizz_server.global.utils.CookieUtils;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
