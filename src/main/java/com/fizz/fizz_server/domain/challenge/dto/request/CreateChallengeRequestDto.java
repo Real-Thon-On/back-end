@@ -1,6 +1,6 @@
 package com.fizz.fizz_server.domain.challenge.dto.request;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fizz.fizz_server.domain.category.domain.Category;
 import com.fizz.fizz_server.domain.challenge.domain.Challenge;
 import com.fizz.fizz_server.domain.user.domain.User;
@@ -12,7 +12,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.time.LocalDateTime;
 
 @Setter
 @NoArgsConstructor
@@ -30,17 +29,17 @@ public class CreateChallengeRequestDto {
     @NotBlank(message = "description은 빈값일 수 없습니다.")
     private String description;
 
-    @NotNull(message = "startDate는 빈값일 수 없습니다.")
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
-    private LocalDateTime startDate;
+    @JsonProperty("isActive")
+    private boolean isActive;
+
 
     public Challenge toChallenge(User creator, Category category){
         return Challenge.builder()
                 .creator(creator)
                 .category(category)
                 .description(this.description)
+                .isActive(this.isActive)
                 .title(this.title)
-                .startDate(this.startDate)
                 .build();
     }
 

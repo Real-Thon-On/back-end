@@ -3,10 +3,9 @@ package com.fizz.fizz_server.domain.challenge.domain;
 import com.fizz.fizz_server.domain.user.domain.User;
 import com.fizz.fizz_server.global.base.domain.BaseEntity;
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
+@ToString
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
@@ -24,4 +23,10 @@ public class Participant extends BaseEntity { // 중간테이블
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "challenge_id", nullable = false)
     private Challenge challenge;
+
+    @Builder
+    public Participant( User user, Challenge challenge){
+        this.user=user;
+        this.challenge=challenge;
+    }
 }
