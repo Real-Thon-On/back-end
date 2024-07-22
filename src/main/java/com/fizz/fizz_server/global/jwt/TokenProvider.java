@@ -1,6 +1,8 @@
 package com.fizz.fizz_server.global.jwt;
 
+import com.fizz.fizz_server.domain.user.domain.CustomUserPrincipal;
 import com.fizz.fizz_server.domain.user.domain.RoleType;
+import com.fizz.fizz_server.domain.user.service.CustomUserDetailsService;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import io.jsonwebtoken.security.SignatureException;
@@ -23,6 +25,7 @@ import java.util.Date;
 @Component
 public class TokenProvider implements AuthenticationProvider {
     private static final long ACCESS_TOKEN_EXPIRE_TIME_IN_MILLISECONDS = 1000 * 60 * 30;    // 30분
+    private final CustomUserDetailsService userDetailsService;
 
     @Value("${jwt.secret-key}")
     private String secretKey;
@@ -34,9 +37,9 @@ public class TokenProvider implements AuthenticationProvider {
         this.key = Keys.hmacShaKeyFor(key);
     }
 
-    public String createToken(String email, RoleType role) {
+    public String createToken(Long userId, RoleType role) {
         Claims claims = Jwts.claims().setSubject("ACCESS_TOKEN");
-        claims.put("email", email);
+        claims.put("userId", userId.toString());
         claims.put("role", role);
 
         Date now = new Date(System.currentTimeMillis());
@@ -50,7 +53,6 @@ public class TokenProvider implements AuthenticationProvider {
                 .compact();
     }
 
-
     public String validateToken(String token) {
         try {
             Claims claims = Jwts.parserBuilder()
@@ -58,7 +60,7 @@ public class TokenProvider implements AuthenticationProvider {
                     .build()
                     .parseClaimsJws(token)
                     .getBody();
-            return (String) claims.get("email");
+            return (String) claims.get("userId");
         } catch (UnsupportedJwtException | MalformedJwtException e) {
             log.error("JWT is not valid");
         } catch (SignatureException e) {
@@ -75,8 +77,8 @@ public class TokenProvider implements AuthenticationProvider {
 
     @Override
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
-        // TODO. 구현 필요
-        return null;
+        CustomUserPrincipal userPrincipal = (CustomUserPrincipal) userDetailsService.loadUserByUsername((String) authentication.getPrincipal());
+        return new UsernamePasswordAuthenticationToken(userPrincipal, "", userPrincipal.getAuthorities());
     }
 
     @Override
