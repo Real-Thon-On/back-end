@@ -1,11 +1,10 @@
-package com.fizz.fizz_server.global.oauth2.user.google;
+package com.fizz.fizz_server.global.oauth2.user.info;
 
 import com.fizz.fizz_server.global.oauth2.user.OAuth2Provider;
-import com.fizz.fizz_server.global.oauth2.user.OAuth2UserInfo;
 
 import java.util.Map;
 
-public class GoogleOAuth2UserInfo implements OAuth2UserInfo {
+public class KakaoOAuth2UserInfo implements OAuth2UserInfo {
     private final Map<String, Object> attributes;
     private final String accessToken;
     private final String id;
@@ -16,21 +15,28 @@ public class GoogleOAuth2UserInfo implements OAuth2UserInfo {
     private final String nickName;
     private final String profileImageUrl;
 
-    public GoogleOAuth2UserInfo(String accessToken, Map<String, Object> attributes) {
+    public KakaoOAuth2UserInfo(String accessToken, Map<String, Object> attributes) {
         this.accessToken = accessToken;
-        this.attributes = attributes;
-        this.id = (String) attributes.get("sub");
-        this.email = (String) attributes.get("email");
-        this.name = (String) attributes.get("name");
-        this.firstName = (String) attributes.get("given_name");
-        this.lastName = (String) attributes.get("family_name");
-        this.nickName = null;
-        this.profileImageUrl = (String) attributes.get("picture");
+
+        Map<String, Object> kakaoAccount = (Map<String, Object>) attributes.get("kakao_account");
+        Map<String, Object> kakaoProfile = (Map<String, Object>) kakaoAccount.get("profile");
+        this.attributes = kakaoProfile;
+
+        this.id = ((Long) attributes.get("id")).toString();
+        this.email = (String) kakaoAccount.get("email");
+        this.name = null;
+        this.firstName = null;
+        this.lastName = null;
+        this.nickName = (String) attributes.get("nickname");
+        this.profileImageUrl = (String) attributes.get("profile_image_url");
+
+        this.attributes.put("id", id);
+        this.attributes.put("email", this.email);
     }
 
     @Override
     public OAuth2Provider getProvider() {
-        return OAuth2Provider.GOOGLE;
+        return OAuth2Provider.KAKAO;
     }
 
     @Override

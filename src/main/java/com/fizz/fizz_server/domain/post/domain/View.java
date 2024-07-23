@@ -19,4 +19,8 @@ public class View extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "post_id", nullable = false)
     private Post post;
+
+    public View(Post post) {
+        this.post = post;
+    }
 }

@@ -1,8 +1,8 @@
 package com.fizz.fizz_server.global.oauth2.service;
 
 import com.fizz.fizz_server.global.oauth2.exception.OAuth2AuthenticationProcessingException;
-import com.fizz.fizz_server.global.oauth2.user.OAuth2UserInfo;
-import com.fizz.fizz_server.global.oauth2.user.OAuth2UserInfoFatory;
+import com.fizz.fizz_server.global.oauth2.user.info.OAuth2UserInfo;
+import com.fizz.fizz_server.global.oauth2.user.info.OAuth2UserInfoFatory;
 import org.springframework.security.authentication.InternalAuthenticationServiceException;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;

@@ -2,14 +2,12 @@ package com.fizz.fizz_server.domain.post.domain;
 
 import com.fizz.fizz_server.domain.challenge.domain.Challenge;
 import com.fizz.fizz_server.domain.comment.domain.Comment;
-import com.fizz.fizz_server.domain.file.domain.File;
+import com.fizz.fizz_server.domain.post.domain.vo.FileType;
+import com.fizz.fizz_server.domain.user.domain.RoleType;
 import com.fizz.fizz_server.domain.user.domain.User;
 import com.fizz.fizz_server.global.base.domain.BaseEntity;
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -32,6 +30,14 @@ public class Post extends BaseEntity {
     @Column(nullable = false)
     private String content;
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private FileType fileType;
+
+    @ElementCollection(fetch = FetchType.EAGER)
+    @Column(nullable = false)
+    private List<String> fileUrls = new ArrayList<>();
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
@@ -43,20 +49,19 @@ public class Post extends BaseEntity {
     @OneToMany(mappedBy = "post" , cascade = CascadeType.REMOVE)
     private List<Comment> comments = new ArrayList<>();
 
-    @OneToMany(mappedBy = "post")
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<PostLike> postLikes = new HashSet<>();
 
-    @OneToMany(mappedBy = "post")
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<View> views = new ArrayList<>();
 
-    @OneToMany(mappedBy = "post", cascade = CascadeType.PERSIST)
-    private List<File> files = new ArrayList<>();
-
     @Builder
-    public Post(String title, String content, User user, Challenge challenge) {
+    public Post(String title, String content, User user, Challenge challenge, FileType fileType, List<String> fileUrls) {
         this.title = title;
         this.content = content;
         this.user = user;
         this.challenge = challenge;
+        this.fileType = fileType;
+        this.fileUrls = fileUrls;
     }
 }

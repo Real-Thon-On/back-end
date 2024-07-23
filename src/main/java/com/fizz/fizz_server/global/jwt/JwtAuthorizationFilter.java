@@ -27,16 +27,18 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
         String token = resoveToken(request);
 
         if (token != null) {
-            String email = tokenProvider.validateToken(token);
-            if (email != null) {
+            String userId = tokenProvider.validateToken(token);
+            if (userId != null) {
                 try {
-                    Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(email, ""));
+                    Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(userId, ""));
                     SecurityContextHolder.getContext().setAuthentication(authentication);
                 } catch (RuntimeException e) {
                     log.error("Failed to create credentials from JWT");
                 }
             }
         }
+
+        filterChain.doFilter(request, response);
     }
 
     private String resoveToken(HttpServletRequest request) {

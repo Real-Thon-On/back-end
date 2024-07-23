@@ -1,6 +1,5 @@
-package com.fizz.fizz_server.global.oauth2.user.google;
+package com.fizz.fizz_server.global.oauth2.user.unlink;
 
-import com.fizz.fizz_server.global.oauth2.user.OAuth2UserUnlink;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.util.LinkedMultiValueMap;
@@ -17,6 +16,6 @@ public class GoogleOAuth2UserUnlink implements OAuth2UserUnlink {
     public void unlink(String accessToken) {
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
         params.add("token", accessToken);
-        restTemplate.postForObject(URL, params, String.class);  // HttpEntity의 body로 들어감 왜 헤더에 넣는 게 아니라??
+        restTemplate.postForObject(URL, params, String.class);
     }
 }
