@@ -32,6 +32,9 @@ public enum ExceptionType {
     // post
     POST_NOT_FOUND(NOT_FOUND, "P001", "존재하지 않는 게시글"),
     POST_USER_NOT_MATCHED(BAD_REQUEST, "P002", "해당 게시글의 사용자가 아님"),
+    FILE_NOT_FOUND(NOT_FOUND, "P003", "파일이 존재하지 않습니다."),
+    ALREADY_LIKED(BAD_REQUEST, "P004", "이미 좋아요 누른 게시글입니다."),
+    NOT_LIKED(BAD_REQUEST, "P005", "좋아요를 누르지 않은 게시글입니다."),
 
     // comment
 
