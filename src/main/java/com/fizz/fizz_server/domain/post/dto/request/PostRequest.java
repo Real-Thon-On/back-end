@@ -9,6 +9,6 @@ public record PostRequest(
         String title,
         String content,
         List<String> images,
-        String video
+        List<String> video
 ) {
 }
