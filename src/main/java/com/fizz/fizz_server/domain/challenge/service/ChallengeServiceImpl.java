@@ -49,6 +49,7 @@ public class ChallengeServiceImpl implements ChallengeService{
         log.info(participant.toString());
     }
 
+    @Transactional(readOnly = true)
     @Override
     public ChallengeInfoResponseDto getChallengeInfoByChallengeId(Long challengeId) {
         Challenge challenge = challengeRepository.findById(challengeId).orElseThrow(()->new BusinessException(NON_EXISTENT_CHALLENGE_ERROR));
@@ -58,6 +59,7 @@ public class ChallengeServiceImpl implements ChallengeService{
         return responseDto;
     }
 
+    @Transactional(readOnly = true)
     @Override
     public ChallengeInfoResponseDto getChallengeInfoByChallengeTitle(String challengeTitle) {
         Challenge challenge = challengeRepository.findByTitle(challengeTitle).orElseThrow(()->new BusinessException(NON_EXISTENT_CHALLENGE_ERROR));
@@ -75,6 +77,7 @@ public class ChallengeServiceImpl implements ChallengeService{
         return updated;
     }
 
+    @Transactional(readOnly = true)
     @Override
     public List<ChallengeSummaryResponseDto> getSleepingChallengeList()  {
         List<Challenge> entityList = challengeRepository.findByIsActiveFalse();
@@ -83,6 +86,7 @@ public class ChallengeServiceImpl implements ChallengeService{
         return dtoList;
     }
 
+    @Transactional(readOnly = true)
     @Override
     public List<ChallengeSummaryResponseDto> getActiveChallengeList()  {
         List<Challenge> entityList = challengeRepository.findByIsActiveTrue();
@@ -91,6 +95,7 @@ public class ChallengeServiceImpl implements ChallengeService{
         return dtoList;
     }
 
+    @Transactional(readOnly = true)
     @Override
     public List<ChallengeSummaryResponseDto> getSleepingChallengeListByCategoryId(Long categoryId) {
         Category category = categoryRepository.findById(categoryId).orElseThrow(()->new BusinessException(NON_EXISTENT_CATEGORY_ERROR));
@@ -100,6 +105,7 @@ public class ChallengeServiceImpl implements ChallengeService{
         return dtoList;
     }
 
+    @Transactional(readOnly = true)
     @Override
     public List<ChallengeSummaryResponseDto> getActiveChallengeListByCategoryId(Long categoryId) {
         Category category = categoryRepository.findById(categoryId).orElseThrow(()->new BusinessException(NON_EXISTENT_CATEGORY_ERROR));
@@ -109,6 +115,7 @@ public class ChallengeServiceImpl implements ChallengeService{
         return dtoList;
     }
 
+    @Transactional(readOnly = true)
     @Override
     public List<ChallengeSummaryResponseDto> getSleepingChallengeListByUser( User user ) {
         List<Challenge> entityList = challengeRepository.findByCreatorAndIsActiveFalse(user);
@@ -117,6 +124,7 @@ public class ChallengeServiceImpl implements ChallengeService{
         return dtoList;
     }
 
+    @Transactional(readOnly = true)
     @Override
     public List<ChallengeSummaryResponseDto> getActiveChallengeListByUser( User user ) {
         List<Challenge> entityList = challengeRepository.findByCreatorAndIsActiveTrue(user);

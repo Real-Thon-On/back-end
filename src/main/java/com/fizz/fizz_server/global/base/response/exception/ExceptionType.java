@@ -22,11 +22,12 @@ public enum ExceptionType {
 
 
     // category
-    NON_EXISTENT_CATEGORY_ERROR(BAD_REQUEST,"C005","존재하지 않는 카테고리")
+    NON_EXISTENT_CATEGORY_ERROR(BAD_REQUEST,"C005","존재하지 않는 카테고리"),
 
     // post
 
     // comment
+    NON_EXISTENT_COMMENT_ERROR(BAD_REQUEST,"C007","존재하지 않는 댓글")
 
     ;
 

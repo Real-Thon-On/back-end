@@ -4,12 +4,14 @@ import com.fizz.fizz_server.domain.user.domain.User;
 import com.fizz.fizz_server.global.base.domain.BaseEntity;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
+@EqualsAndHashCode(of = {"comment", "user"}, callSuper = false)
 public class CommentLike extends BaseEntity {
 
     @Id
