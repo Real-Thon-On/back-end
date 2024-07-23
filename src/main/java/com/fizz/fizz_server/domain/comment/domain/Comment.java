@@ -11,7 +11,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-@ToString(exclude = "parent")
+@ToString(exclude = {"parent", "children", "commentLikes"})
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
@@ -50,4 +50,10 @@ public class Comment extends BaseEntity {
         this.post = post;
         this.parent = parent;
     }
+
+    public void update(String content){
+        this.content = content;
+    }
+
+
 }

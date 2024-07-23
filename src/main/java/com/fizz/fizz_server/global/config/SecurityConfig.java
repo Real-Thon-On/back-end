@@ -12,6 +12,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
+import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
+import org.springframework.security.access.hierarchicalroles.RoleHierarchyImpl;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -33,6 +35,12 @@ public class SecurityConfig {
     private final CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
     private final CustomAccessDeniedHandler customAccessDeniedHandler;
 
+    @Bean
+    public RoleHierarchy roleHierarchy() {
+        RoleHierarchyImpl hierarchy = new RoleHierarchyImpl();
+        hierarchy.setHierarchy("ROLE_ADMIN > ROLE_USER");
+        return hierarchy;
+    }
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http, TokenProvider tokenProvider, AuthenticationManager authenticationManager) throws Exception {
@@ -45,6 +53,12 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/api/files/**").hasAnyRole("USER", "ADMIN")
                         .requestMatchers(HttpMethod.POST, "/api/posts/**").hasAnyRole("USER", "ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/api/posts/**").hasAnyRole("USER", "ADMIN")
+                        .requestMatchers(HttpMethod.POST, "/api/challenge/**").hasAnyRole("USER")
+                        .requestMatchers(HttpMethod.POST, "/api/category/**").hasAnyRole("USER")
+                        .requestMatchers(HttpMethod.DELETE, "/api/category/**").hasAnyRole("USER")
+                        .requestMatchers(HttpMethod.POST, "/api/comment/**").hasAnyRole("USER")
+                        .requestMatchers(HttpMethod.DELETE, "/api/comment/**").hasAnyRole("USER")
+                        .requestMatchers(HttpMethod.PATCH, "/api/comment/**").hasAnyRole("USER")
                         .requestMatchers("/**").permitAll()
                         .anyRequest().hasRole("ADMIN"))
                 .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))

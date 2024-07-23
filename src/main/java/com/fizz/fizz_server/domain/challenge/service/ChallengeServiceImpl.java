@@ -10,6 +10,7 @@ import com.fizz.fizz_server.domain.challenge.dto.response.ChallengeSummaryRespon
 import com.fizz.fizz_server.domain.challenge.repository.ChallengeRepository;
 import com.fizz.fizz_server.domain.challenge.repository.ParticipantRepository;
 import com.fizz.fizz_server.domain.user.domain.User;
+import com.fizz.fizz_server.domain.user.repository.UserRepository;
 import com.fizz.fizz_server.global.base.response.exception.BusinessException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -21,8 +22,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static com.fizz.fizz_server.global.base.response.exception.ExceptionType.NON_EXISTENT_CATEGORY_ERROR;
-import static com.fizz.fizz_server.global.base.response.exception.ExceptionType.NON_EXISTENT_CHALLENGE_ERROR;
+import static com.fizz.fizz_server.global.base.response.exception.ExceptionType.*;
 
 
 @Slf4j
@@ -32,14 +32,16 @@ public class ChallengeServiceImpl implements ChallengeService{
    private final ChallengeRepository challengeRepository;
    private final CategoryRepository categoryRepository;
    private final ParticipantRepository participantRepository;
+   private final UserRepository userRepository;
 
     @Value("${challenge.period.months}")
     private int period;
 
     @Transactional
     @Override
-    public void createChallengeByCategoryId(User user , CreateChallengeRequestDto requestDto) {
+    public void createChallengeByCategoryId(Long userId , CreateChallengeRequestDto requestDto) {
         Category category = categoryRepository.findById(requestDto.getCategoryId()).orElseThrow(()->new BusinessException(NON_EXISTENT_CATEGORY_ERROR));
+        User user = userRepository.findById(userId).orElseThrow(() -> new BusinessException(USER_NOT_FOUND));
         Challenge challenge = requestDto.toChallenge(user, category);
         Challenge savedChallenge = challengeRepository.save(challenge);
         log.info(savedChallenge.toString());
@@ -117,7 +119,8 @@ public class ChallengeServiceImpl implements ChallengeService{
 
     @Transactional(readOnly = true)
     @Override
-    public List<ChallengeSummaryResponseDto> getSleepingChallengeListByUser( User user ) {
+    public List<ChallengeSummaryResponseDto> getSleepingChallengeListByUser( Long userId ) {
+        User user = userRepository.findById(userId).orElseThrow(() -> new BusinessException(USER_NOT_FOUND));
         List<Challenge> entityList = challengeRepository.findByCreatorAndIsActiveFalse(user);
         List<ChallengeSummaryResponseDto> dtoList = entityListToDtoList(entityList);
         log.info(dtoList.toString());
@@ -126,7 +129,8 @@ public class ChallengeServiceImpl implements ChallengeService{
 
     @Transactional(readOnly = true)
     @Override
-    public List<ChallengeSummaryResponseDto> getActiveChallengeListByUser( User user ) {
+    public List<ChallengeSummaryResponseDto> getActiveChallengeListByUser( Long userId ) {
+        User user = userRepository.findById(userId).orElseThrow(() -> new BusinessException(USER_NOT_FOUND));
         List<Challenge> entityList = challengeRepository.findByCreatorAndIsActiveTrue(user);
         List<ChallengeSummaryResponseDto> dtoList = entityListToDtoList(entityList);
         log.info(dtoList.toString());

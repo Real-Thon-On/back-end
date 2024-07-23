@@ -3,13 +3,14 @@ package com.fizz.fizz_server.domain.comment.domain;
 import com.fizz.fizz_server.domain.user.domain.User;
 import com.fizz.fizz_server.global.base.domain.BaseEntity;
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
+@ToString
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Table(name = "comment_like", uniqueConstraints = {
+        @UniqueConstraint(columnNames = {"comment_id", "user_id"})
+})
 @Entity
 @EqualsAndHashCode(of = {"comment", "user"}, callSuper = false)
 public class CommentLike extends BaseEntity {
@@ -26,4 +27,10 @@ public class CommentLike extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
+
+    @Builder
+    public CommentLike(Comment comment, User user){
+        this.comment = comment;
+        this.user = user;
+    }
 }

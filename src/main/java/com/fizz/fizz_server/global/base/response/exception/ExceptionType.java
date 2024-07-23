@@ -14,6 +14,8 @@ public enum ExceptionType {
     BINDING_ERROR(BAD_REQUEST, "C002", "바인딩시 에러 발생"),
     ESSENTIAL_FIELD_MISSING_ERROR(NO_CONTENT , "C003","필수적인 필드 부재"),
     INVALID_VALUE_ERROR(NOT_ACCEPTABLE , "C004","값이 유효하지 않음"),
+    DUPLICATE_VALUE_ERROR(NOT_ACCEPTABLE , "C005","값이 중복됨"),
+
 
     // user
     USER_NOT_FOUND(NOT_FOUND, "U001", "존재하지 않는 사용자"),

@@ -13,4 +13,5 @@ import lombok.Setter;
 public class ChangeCommentRequestDto {
     @NotBlank(message = "content은 빈값일 수 없습니다.")
     private String content;
+
 }

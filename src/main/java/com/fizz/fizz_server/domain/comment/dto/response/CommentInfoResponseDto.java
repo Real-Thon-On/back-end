@@ -22,7 +22,7 @@ public class CommentInfoResponseDto {
         if(comment.getParent() != null ) dto.parentId = comment.getParent().getId();
         dto.userId = comment.getUser().getId();
         dto.content = comment.getContent();
-        dto.likeCount = comment.getCommentLikes().size(); // 제대로 되나 확인
+        dto.likeCount = comment.getCommentLikes().size();
         return dto;
     }
 }
