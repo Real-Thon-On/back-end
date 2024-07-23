@@ -4,6 +4,7 @@ import com.fizz.fizz_server.global.base.response.ResponseBody;
 import com.fizz.fizz_server.global.base.response.ResponseUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -30,6 +31,14 @@ public class GlobalExceptionHandler {
         return ResponseEntity
                 .status(ExceptionType.BINDING_ERROR.getStatus())
                 .body(ResponseUtil.createFailureResponse(ExceptionType.BINDING_ERROR, customMessage));
+    }
+
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ResponseEntity<ResponseBody<Void>> dataIntegrityViolationException(DataIntegrityViolationException e) {
+        log.error("DataIntegrityViolationException: {}", e.getMessage());
+        return ResponseEntity
+                .status(HttpStatus.CONFLICT)
+                .body(ResponseUtil.createFailureResponse(ExceptionType.DUPLICATE_VALUE_ERROR));
     }
 
     @ExceptionHandler(Exception.class)

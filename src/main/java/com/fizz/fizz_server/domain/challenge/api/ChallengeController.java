@@ -6,6 +6,7 @@ import com.fizz.fizz_server.domain.challenge.dto.request.CreateChallengeRequestD
 import com.fizz.fizz_server.domain.challenge.dto.response.ChallengeInfoResponseDto;
 import com.fizz.fizz_server.domain.challenge.dto.response.ChallengeSummaryResponseDto;
 import com.fizz.fizz_server.domain.challenge.service.ChallengeService;
+import com.fizz.fizz_server.domain.user.domain.CustomUserPrincipal;
 import com.fizz.fizz_server.domain.user.domain.User;
 import com.fizz.fizz_server.domain.user.repository.UserRepository;
 import com.fizz.fizz_server.global.base.response.ResponseBody;
@@ -15,6 +16,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -27,16 +29,11 @@ public class ChallengeController {
 
     private final ChallengeService challengeService;
 
-    // UserPrincipal 추후 추가되면 삭제 예정
-    private final UserRepository userRepository;
-
-
     //챌린지 생성
     @PostMapping()
-    public ResponseEntity<ResponseBody> createChallengeByCategoryId(@Valid @RequestBody CreateChallengeRequestDto requestDto){// parameter 에 @AuthenticationPrincipal UserPrincipal user 추후 추가
-        User tempUser = userRepository.findById(1L).get(); // UserPrincipal 추후 추가되면 삭제.
-
-        challengeService.createChallengeByCategoryId( tempUser , requestDto);
+    public ResponseEntity<ResponseBody> createChallengeByCategoryId(@Valid @RequestBody CreateChallengeRequestDto requestDto,
+                                                                    @AuthenticationPrincipal CustomUserPrincipal user) {
+        challengeService.createChallengeByCategoryId( user.getUserId() , requestDto);
         return ResponseEntity.status(HttpStatus.CREATED) .body(ResponseUtil.createSuccessResponse());
     }
 
@@ -84,19 +81,15 @@ public class ChallengeController {
 
     //해당 사용자가 생성한 활성화 상태 챌린지 목록
     @GetMapping("/sleep/user")
-    public ResponseEntity<ResponseBody<List<ChallengeSummaryResponseDto>>> getSleepingChallengeListByUser( ){// parameter 에 @AuthenticationPrincipal UserPrincipal user 추후 추가
-        User tempUser = userRepository.findById(1L).get();
-
-        List<ChallengeSummaryResponseDto> responseDtos = challengeService.getSleepingChallengeListByUser(tempUser);
+    public ResponseEntity<ResponseBody<List<ChallengeSummaryResponseDto>>> getSleepingChallengeListByUser( @AuthenticationPrincipal CustomUserPrincipal user) {
+        List<ChallengeSummaryResponseDto> responseDtos = challengeService.getSleepingChallengeListByUser(user.getUserId());
         return ResponseEntity.status(HttpStatus.OK) .body(ResponseUtil.createSuccessResponse( responseDtos ));
     }
 
     //해당 사용자가 생성한 활성화 상태 챌린지 목록
     @GetMapping("/user")
-    public ResponseEntity<ResponseBody<List<ChallengeSummaryResponseDto>>> getActiveChallengeListByUser( ){// parameter 에 @AuthenticationPrincipal UserPrincipal user 추후 추가
-        User tempUser = userRepository.findById(1L).get();
-
-        List<ChallengeSummaryResponseDto> responseDtos = challengeService.getActiveChallengeListByUser(tempUser);
+    public ResponseEntity<ResponseBody<List<ChallengeSummaryResponseDto>>> getActiveChallengeListByUser( @AuthenticationPrincipal CustomUserPrincipal user) {
+        List<ChallengeSummaryResponseDto> responseDtos = challengeService.getActiveChallengeListByUser(user.getUserId());
         return ResponseEntity.status(HttpStatus.OK) .body(ResponseUtil.createSuccessResponse( responseDtos ));
     }
 

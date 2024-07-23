@@ -7,7 +7,7 @@ import java.util.List;
 
 public interface ChallengeService {
     //챌린지 생성
-    public void createChallengeByCategoryId(User user , CreateChallengeRequestDto requestDto);
+    public void createChallengeByCategoryId(Long userId , CreateChallengeRequestDto requestDto);
 
     //id 기반 챌린지 상세정보 조회
     public ChallengeInfoResponseDto getChallengeInfoByChallengeId( Long challengeId );
@@ -31,8 +31,8 @@ public interface ChallengeService {
     public List<ChallengeSummaryResponseDto> getSleepingChallengeListByCategoryId(Long categoryId);
 
     //해당 사용자가 생성한 활성화 상태 챌린지 목록
-    public List<ChallengeSummaryResponseDto> getActiveChallengeListByUser( User user );
+    public List<ChallengeSummaryResponseDto> getActiveChallengeListByUser( Long userId );
 
     //해당 사용자가 생성한 활성화 상태 챌린지 목록
-    public List<ChallengeSummaryResponseDto> getSleepingChallengeListByUser( User user );
+    public List<ChallengeSummaryResponseDto> getSleepingChallengeListByUser( Long userId );
 }
