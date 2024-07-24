@@ -44,7 +44,6 @@ public class HttpCookieOAuth2AuthorizationRequestRepository implements Authoriza
 
     @Override
     public OAuth2AuthorizationRequest removeAuthorizationRequest(HttpServletRequest request, HttpServletResponse response) {
-        // TODO. remove인데 load만 하고 있으므로 추후 확인
         return this.loadAuthorizationRequest(request);
     }
 

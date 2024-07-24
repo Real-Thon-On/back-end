@@ -40,7 +40,11 @@ public class User extends BaseEntity {
     @Setter
     @Column(unique = true)
     private String profileId;
+
+    @Setter
     private String profileImage;
+
+    @Setter
     private String aboutMe; // 자기소개
 
     @Setter

@@ -43,7 +43,9 @@ public class SecurityConfig {
                         .anyRequest().hasRole("ADMIN"))
                 .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .oauth2Login(configure ->
-                        configure.authorizationEndpoint(config -> config.authorizationRequestRepository(httpCookieOAuth2AuthorizationRequestRepository))
+                        configure.authorizationEndpoint(config ->
+                                        config.authorizationRequestRepository(httpCookieOAuth2AuthorizationRequestRepository)
+                                                .baseUri("/api/user/oauth2"))
                                 .userInfoEndpoint(config -> config.userService(customOAuth2UserService))
                                 .successHandler(oAuth2AuthenticationSuccessHandler)
                                 .failureHandler(oAuth2AuthenticationFailureHandler))
