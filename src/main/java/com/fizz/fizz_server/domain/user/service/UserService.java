@@ -15,10 +15,10 @@ public class UserService {
     private final UserRepository userRepository;
 
     @Transactional
-    public void setNicknameAndEmail(Long userId, String nickname, String email) {
-        userRepository.findByNickname(nickname)
+    public void setProfileIdAndEmail(Long userId, String profileId, String email) {
+        userRepository.findByProfileId(profileId)
                 .ifPresent(it -> {
-                    throw new BusinessException(ExceptionType.DUPLICATED_NICKNAME);
+                    throw new BusinessException(ExceptionType.DUPLICATED_PROFILE_ID);
                 });
 
         userRepository.findByEmail(email)
@@ -29,7 +29,8 @@ public class UserService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new BusinessException(ExceptionType.USER_NOT_FOUND));
 
-        user.setNickname(nickname);
+        user.setNickname(profileId);
+        user.setProfileId(profileId);
         user.setEmail(email);
         user.setRole(RoleType.ROLE_USER);
     }

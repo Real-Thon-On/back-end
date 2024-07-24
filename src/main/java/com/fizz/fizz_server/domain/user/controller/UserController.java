@@ -22,8 +22,8 @@ public class UserController {
 
     @PostMapping("/login-info")
     public ResponseEntity<ResponseBody<Void>> newUser(@AuthenticationPrincipal CustomUserPrincipal userPrincipal,
-                                                      @RequestBody NicknameAndEmailSetRequest request) {
-        userService.setNicknameAndEmail(userPrincipal.getUserId(), request.getNickname(), request.getEmail());
+                                                      @Valid @RequestBody ProfileIdAndEmailSetRequest request) {
+        userService.setProfileIdAndEmail(userPrincipal.getUserId(), request.getProfileId(), request.getEmail());
         return ResponseEntity.ok(createSuccessResponse());
     }
 
