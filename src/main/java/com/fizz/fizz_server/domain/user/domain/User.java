@@ -28,7 +28,6 @@ public class User extends BaseEntity {
     private Long id;
 
     @Setter
-    @Column(unique = true)
     private String nickname;
 
     @Setter
@@ -38,8 +37,14 @@ public class User extends BaseEntity {
     private OAuth2Provider provider;
     private String providerId;
 
+    @Setter
+    @Column(unique = true)
     private String profileId;
+
+    @Setter
     private String profileImage;
+
+    @Setter
     private String aboutMe; // 자기소개
 
     @Setter
