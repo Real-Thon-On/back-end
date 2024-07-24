@@ -6,7 +6,7 @@ import com.fizz.fizz_server.domain.user.domain.User;
 
 
 public interface CategoryService {
-    public void createCategoryRecommend(User User , CategoryRecommendRequestDto requestDto);
+    public void createCategoryRecommend(Long UserId , CategoryRecommendRequestDto requestDto);
 
     public void createCategory(CategoryRequestDto requestDto);
 

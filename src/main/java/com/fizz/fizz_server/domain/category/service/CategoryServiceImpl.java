@@ -7,10 +7,14 @@ import com.fizz.fizz_server.domain.category.dto.request.CategoryRequestDto;
 import com.fizz.fizz_server.domain.category.repository.CategoryRecommendationRepository;
 import com.fizz.fizz_server.domain.category.repository.CategoryRepository;
 import com.fizz.fizz_server.domain.user.domain.User;
+import com.fizz.fizz_server.domain.user.repository.UserRepository;
+import com.fizz.fizz_server.global.base.response.exception.BusinessException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import static com.fizz.fizz_server.global.base.response.exception.ExceptionType.USER_NOT_FOUND;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -19,11 +23,13 @@ public class CategoryServiceImpl implements CategoryService{
 
     private final CategoryRepository categoryRepository;
     private final CategoryRecommendationRepository categoryRecommendationRepository;
+    private final UserRepository userRepository;
 
 
     @Transactional
     @Override
-    public void createCategoryRecommend(User user, CategoryRecommendRequestDto requestDto) {
+    public void createCategoryRecommend(Long userId, CategoryRecommendRequestDto requestDto) {
+        User user = userRepository.findById(userId).orElseThrow(() -> new BusinessException(USER_NOT_FOUND));
         CategoryRecommendation categoryRecommendation = requestDto.toEntity(user);
         CategoryRecommendation savedCategoryRecommendation = categoryRecommendationRepository.save(categoryRecommendation);
         log.info(savedCategoryRecommendation.toString());

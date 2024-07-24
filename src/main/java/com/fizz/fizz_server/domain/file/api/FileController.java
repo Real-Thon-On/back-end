@@ -7,8 +7,10 @@ import com.fizz.fizz_server.domain.file.dto.request.FinishUploadRequest;
 import com.fizz.fizz_server.domain.file.dto.request.PreSignedUploadInitiateRequest;
 import com.fizz.fizz_server.domain.file.dto.request.PreSignedUrlCreateRequest;
 import com.fizz.fizz_server.domain.file.service.FileService;
+import com.fizz.fizz_server.domain.user.domain.CustomUserPrincipal;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URL;
@@ -16,7 +18,7 @@ import java.net.URL;
 @Slf4j
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/file")
+@RequestMapping("/api/files")
 public class FileController {
 
     private final FileService fileService;
@@ -35,9 +37,9 @@ public class FileController {
     }
 
     @PostMapping("/initiate-upload")
-    public InitiateMultipartUploadResult initiateUploadToUser(@RequestBody PreSignedUploadInitiateRequest request) {
-        Long userId = 1L;
-        InitiateMultipartUploadRequest initiateMultipartUploadRequest = fileService.initiateUpload(request, null, userId);
+    public InitiateMultipartUploadResult initiateUploadToUser(@RequestBody PreSignedUploadInitiateRequest request,
+                                                              @AuthenticationPrincipal CustomUserPrincipal user) {
+        InitiateMultipartUploadRequest initiateMultipartUploadRequest = fileService.initiateUpload(request, null, user.getUserId());
 
         return amazonS3Client.initiateMultipartUpload(initiateMultipartUploadRequest);
     }

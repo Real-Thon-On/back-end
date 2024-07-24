@@ -3,9 +3,12 @@ package com.fizz.fizz_server.domain.post.service;
 import com.fizz.fizz_server.domain.challenge.domain.Challenge;
 import com.fizz.fizz_server.domain.challenge.repository.ChallengeRepository;
 import com.fizz.fizz_server.domain.post.domain.Post;
+import com.fizz.fizz_server.domain.post.domain.View;
+import com.fizz.fizz_server.domain.post.domain.vo.FileType;
 import com.fizz.fizz_server.domain.post.dto.request.PostRequest;
 import com.fizz.fizz_server.domain.post.dto.response.PostInfo;
 import com.fizz.fizz_server.domain.post.repository.PostRepository;
+import com.fizz.fizz_server.domain.post.repository.ViewRepository;
 import com.fizz.fizz_server.domain.user.domain.User;
 import com.fizz.fizz_server.domain.user.repository.UserRepository;
 import com.fizz.fizz_server.global.base.response.exception.BusinessException;
@@ -30,6 +33,7 @@ public class PostService {
     private final PostRepository postRepository;
     private final UserRepository userRepository;
     private final ChallengeRepository challengeRepository;
+    private final ViewRepository viewRepository;
 
     @Transactional
     public void upload(Long challengeId, PostRequest request, Long userId) {
@@ -38,27 +42,49 @@ public class PostService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new BusinessException(USER_NOT_FOUND));
 
-        List<String> fileUrls = new ArrayList<>();
-        if (request.images() != null && !request.images().isEmpty()) {
-            fileUrls.addAll(request.images());
-        } else if (request.video() != null && !request.video().isEmpty()) {
-            fileUrls.add(request.video());
-        }
+        List<String> fileUrls = extractFileUrls(request);
+        FileType fileType = determineFileType(request);
 
         Post post = Post.builder()
                 .title(request.title())
                 .content(request.content())
                 .challenge(challenge)
                 .user(user)
+                .fileType(fileType)
                 .fileUrls(fileUrls)
                 .build();
 
         postRepository.save(post);
     }
 
+    private List<String> extractFileUrls(PostRequest request) {
+        List<String> fileUrls = new ArrayList<>();
+        if (request.images() != null && !request.images().isEmpty()) {
+            fileUrls.addAll(request.images());
+        } else if (request.video() != null && !request.video().isEmpty()) {
+            fileUrls.addAll(request.video());
+        }
+        return fileUrls;
+    }
+
+    private FileType determineFileType(PostRequest request) {
+        if (request.images() != null && !request.images().isEmpty()) {
+            return FileType.IMAGE;
+        } else if (request.video() != null && !request.video().isEmpty()) {
+            return FileType.VIDEO;
+        }
+        throw new BusinessException(FILE_NOT_FOUND);
+    }
+
+    @Transactional
     public PostInfo getPost(Long postId) {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new BusinessException(ExceptionType.POST_NOT_FOUND));
+
+        // 최대한 간단하게 구현한 조회수 로직. 성능상 문제가 있을 것 같긴한데, 구현이 급하기에 일단..
+        View view = new View(post);
+        viewRepository.save(view);
+
         return PostInfo.from(post);
     }
 

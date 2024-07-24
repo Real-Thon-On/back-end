@@ -4,16 +4,14 @@ import com.fizz.fizz_server.domain.post.domain.Post;
 import com.fizz.fizz_server.domain.user.domain.User;
 import com.fizz.fizz_server.global.base.domain.BaseEntity;
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+@ToString(exclude = {"parent", "children", "commentLikes"})
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
@@ -52,4 +50,10 @@ public class Comment extends BaseEntity {
         this.post = post;
         this.parent = parent;
     }
+
+    public void update(String content){
+        this.content = content;
+    }
+
+
 }
