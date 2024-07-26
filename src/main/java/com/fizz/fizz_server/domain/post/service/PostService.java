@@ -1,7 +1,9 @@
 package com.fizz.fizz_server.domain.post.service;
 
 import com.fizz.fizz_server.domain.challenge.domain.Challenge;
+import com.fizz.fizz_server.domain.challenge.domain.Participant;
 import com.fizz.fizz_server.domain.challenge.repository.ChallengeRepository;
+import com.fizz.fizz_server.domain.challenge.repository.ParticipantRepository;
 import com.fizz.fizz_server.domain.post.domain.Post;
 import com.fizz.fizz_server.domain.post.domain.View;
 import com.fizz.fizz_server.domain.post.domain.vo.FileType;
@@ -34,6 +36,8 @@ public class PostService {
     private final UserRepository userRepository;
     private final ChallengeRepository challengeRepository;
     private final ViewRepository viewRepository;
+    private final ParticipantRepository participantRepository;
+
 
     @Transactional
     public void upload(Long challengeId, PostRequest request, Long userId) {
@@ -55,6 +59,14 @@ public class PostService {
                 .build();
 
         postRepository.save(post);
+
+        Participant participant = Participant.builder()
+                .user(user)
+                .challenge(challenge)
+                .build();
+
+        participantRepository.save(participant);
+
     }
 
     private List<String> extractFileUrls(PostRequest request) {
