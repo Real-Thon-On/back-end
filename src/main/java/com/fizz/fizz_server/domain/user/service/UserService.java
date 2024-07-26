@@ -5,6 +5,7 @@ import com.fizz.fizz_server.domain.user.domain.User;
 import com.fizz.fizz_server.domain.user.dto.request.UserInfoUpdateRequest;
 import com.fizz.fizz_server.domain.user.dto.response.CheckProfileIdResponse;
 import com.fizz.fizz_server.domain.user.dto.response.UserInfoResponse;
+import com.fizz.fizz_server.domain.user.repository.FollowRepository;
 import com.fizz.fizz_server.domain.user.repository.UserRepository;
 import com.fizz.fizz_server.global.base.response.exception.BusinessException;
 import com.fizz.fizz_server.global.base.response.exception.ExceptionType;
@@ -16,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class UserService {
     private final UserRepository userRepository;
+    private final FollowRepository followRepository;
 
     @Transactional
     public void setProfileIdAndEmail(Long userId, String profileId, String email) {
@@ -91,4 +93,44 @@ public class UserService {
                 .aboutMe(user.getAboutMe())
                 .build();
     }
+
+    @Transactional
+    public void followUser(Long followerId, Long followeeId) {
+        User follower = userRepository.findById(followerId)
+                .orElseThrow(() -> new BusinessException(ExceptionType.USER_NOT_FOUND));
+
+        User followee = userRepository.findById(followeeId)
+                .orElseThrow(() -> new BusinessException(ExceptionType.USER_NOT_FOUND));
+
+        if (follower == followee) {
+            throw new BusinessException(ExceptionType.SELF_FOLLOW);
+        }
+
+        followRepository.findByFollowerAndFollowee(follower, followee)
+                .ifPresent(it -> {
+                    throw new BusinessException(ExceptionType.ALREADY_FOLLOW);
+                });
+
+        Follow newFollow = Follow.builder()
+                .follower(follower)
+                .followee(followee)
+                .build();
+
+        followRepository.save(newFollow);
+    }
+
+    @Transactional
+    public void unfollowUser(Long followerId, Long followeeId) {
+        User follower = userRepository.findById(followerId)
+                .orElseThrow(() -> new BusinessException(ExceptionType.USER_NOT_FOUND));
+
+        User followee = userRepository.findById(followeeId)
+                .orElseThrow(() -> new BusinessException(ExceptionType.USER_NOT_FOUND));
+
+        Follow deleteFollow = followRepository.findByFollowerAndFollowee(follower, followee)
+                .orElseThrow(() -> new BusinessException(ExceptionType.FOLLOW_NOT_FOUND));
+
+        followRepository.delete(deleteFollow);
+    }
+
 }

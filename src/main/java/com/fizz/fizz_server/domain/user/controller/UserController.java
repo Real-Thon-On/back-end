@@ -50,4 +50,18 @@ public class UserController {
         return ResponseEntity.ok(createSuccessResponse(response));
     }
 
+    @PostMapping("/following/{userId}")
+    public ResponseEntity<ResponseBody<Void>> followUser(@AuthenticationPrincipal CustomUserPrincipal userPrincipal,
+                                                         @PathVariable Long userId) {
+        userService.followUser(userPrincipal.getUserId(), userId);
+        return ResponseEntity.ok(createSuccessResponse());
+    }
+
+    @DeleteMapping("/following/{userId}")
+    public ResponseEntity<ResponseBody<Void>> unfollowUser(@AuthenticationPrincipal CustomUserPrincipal userPrincipal,
+                                                           @PathVariable Long userId) {
+        userService.unfollowUser(userPrincipal.getUserId(), userId);
+        return ResponseEntity.ok(createSuccessResponse());
+    }
+
 }
