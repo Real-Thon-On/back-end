@@ -121,6 +121,7 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
         User user = User.builder()
                 .provider(provider)
                 .providerId(providerId)
+                // 기본 프로필 아이콘 주소(String) 넣기
                 .role(RoleType.ROLE_GUEST)
                 .build();
 

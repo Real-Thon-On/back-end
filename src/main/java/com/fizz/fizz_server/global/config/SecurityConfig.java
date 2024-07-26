@@ -50,6 +50,7 @@ public class SecurityConfig {
 
                 .authorizeHttpRequests((auth) -> auth
                         .requestMatchers(HttpMethod.POST, "/api/user/login-info").hasRole("GUEST") // 오직 첫   로그인 유저
+                        .requestMatchers(HttpMethod.POST, "/api/user/**").hasRole("USER")
                         .requestMatchers(HttpMethod.POST, "/api/files/**").hasAnyRole("USER", "ADMIN")
                         .requestMatchers(HttpMethod.POST, "/api/posts/**").hasAnyRole("USER", "ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/api/posts/**").hasAnyRole("USER", "ADMIN")
@@ -63,7 +64,9 @@ public class SecurityConfig {
                         .anyRequest().hasRole("ADMIN"))
                 .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .oauth2Login(configure ->
-                        configure.authorizationEndpoint(config -> config.authorizationRequestRepository(httpCookieOAuth2AuthorizationRequestRepository))
+                        configure.authorizationEndpoint(config ->
+                                        config.authorizationRequestRepository(httpCookieOAuth2AuthorizationRequestRepository)
+                                                .baseUri("/api/user/oauth2"))
                                 .userInfoEndpoint(config -> config.userService(customOAuth2UserService))
                                 .successHandler(oAuth2AuthenticationSuccessHandler)
                                 .failureHandler(oAuth2AuthenticationFailureHandler))
