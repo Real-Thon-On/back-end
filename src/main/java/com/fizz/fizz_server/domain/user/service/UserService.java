@@ -99,8 +99,8 @@ public class UserService {
     }
 
     private UserDetailInfoResponse getUserInfo(User user) {
-        List<UserInfo> follower = convertToUserInfo(followRepository.findByFollower(user));
-        List<UserInfo> following = convertToUserInfo(followRepository.findByFollowee(user));
+        List<UserInfo> follower = convertToUserInfo(followRepository.findByFollowee(user));
+        List<UserInfo> following = convertToUserInfo(followRepository.findByFollower(user));
 
         return UserDetailInfoResponse.builder()
                 .id(user.getId())
