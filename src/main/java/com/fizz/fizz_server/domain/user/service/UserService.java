@@ -1,10 +1,12 @@
 package com.fizz.fizz_server.domain.user.service;
 
+import com.fizz.fizz_server.domain.user.domain.Follow;
 import com.fizz.fizz_server.domain.user.domain.RoleType;
 import com.fizz.fizz_server.domain.user.domain.User;
 import com.fizz.fizz_server.domain.user.dto.request.UserInfoUpdateRequest;
 import com.fizz.fizz_server.domain.user.dto.response.CheckProfileIdResponse;
-import com.fizz.fizz_server.domain.user.dto.response.UserInfoResponse;
+import com.fizz.fizz_server.domain.user.dto.response.UserDetailInfoResponse;
+import com.fizz.fizz_server.domain.user.dto.response.UserInfo;
 import com.fizz.fizz_server.domain.user.repository.FollowRepository;
 import com.fizz.fizz_server.domain.user.repository.UserRepository;
 import com.fizz.fizz_server.global.base.response.exception.BusinessException;
@@ -12,6 +14,8 @@ import com.fizz.fizz_server.global.base.response.exception.ExceptionType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 @RequiredArgsConstructor
 @Service
@@ -68,7 +72,6 @@ public class UserService {
         user.setAboutMe(request.getAboutMe());
     }
 
-    @Transactional(readOnly = true)
     public CheckProfileIdResponse isProfileIdDuplicate(String profileId) {
         try {
             userRepository.findByProfileId(profileId)
@@ -81,17 +84,45 @@ public class UserService {
         return new CheckProfileIdResponse(false);
     }
 
-    @Transactional(readOnly = true)
-    public UserInfoResponse getProfileInfo(String profileId) {
+    public UserDetailInfoResponse getUserOwnInfo(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new BusinessException(ExceptionType.USER_NOT_FOUND));
+
+        return getUserInfo(user);
+    }
+
+    public UserDetailInfoResponse getUserInfoByProfileId(String profileId) {
         User user = userRepository.findByProfileId(profileId)
                 .orElseThrow(() -> new BusinessException(ExceptionType.USER_NOT_FOUND));
 
-        return UserInfoResponse.builder()
+        return getUserInfo(user);
+    }
+
+    private UserDetailInfoResponse getUserInfo(User user) {
+        List<UserInfo> follower = convertToUserInfo(followRepository.findByFollower(user));
+        List<UserInfo> following = convertToUserInfo(followRepository.findByFollowee(user));
+
+        return UserDetailInfoResponse.builder()
+                .id(user.getId())
                 .profileId(user.getProfileId())
                 .nickname(user.getNickname())
                 .profileImage(user.getProfileImage())
                 .aboutMe(user.getAboutMe())
+                .follower(follower)
+                .following(following)
                 .build();
+    }
+
+    private List<UserInfo> convertToUserInfo(List<User> userList) {
+        return userList.stream()
+                .map(user -> UserInfo.builder()
+                        .id(user.getId())
+                        .profileId(user.getProfileId())
+                        .nickname(user.getNickname())
+                        .profileImage(user.getProfileImage())
+                        .aboutMe(user.getAboutMe())
+                        .build())
+                .toList();
     }
 
     @Transactional
