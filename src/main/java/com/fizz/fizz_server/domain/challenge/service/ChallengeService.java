@@ -35,4 +35,7 @@ public interface ChallengeService {
 
     //해당 사용자가 생성한 활성화 상태 챌린지 목록
     public List<ChallengeSummaryResponseDto> getSleepingChallengeListByUser( Long userId );
+
+    //해당 사용자가 참여한 챌린지 목록
+    public List<ChallengeSummaryResponseDto> getActiveChallengeListParticipatedByUser( Long userId );
 }

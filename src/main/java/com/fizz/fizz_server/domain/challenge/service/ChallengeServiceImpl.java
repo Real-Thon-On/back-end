@@ -45,10 +45,6 @@ public class ChallengeServiceImpl implements ChallengeService{
         Challenge challenge = requestDto.toChallenge(user, category);
         Challenge savedChallenge = challengeRepository.save(challenge);
         log.info(savedChallenge.toString());
-
-        Participant participant = Participant.builder().user(user).challenge(savedChallenge).build();
-        Participant savedParticipant = participantRepository.save(participant);
-        log.info(participant.toString());
     }
 
     @Transactional(readOnly = true)
@@ -132,6 +128,16 @@ public class ChallengeServiceImpl implements ChallengeService{
     public List<ChallengeSummaryResponseDto> getActiveChallengeListByUser( Long userId ) {
         User user = userRepository.findById(userId).orElseThrow(() -> new BusinessException(USER_NOT_FOUND));
         List<Challenge> entityList = challengeRepository.findByCreatorAndIsActiveTrue(user);
+        List<ChallengeSummaryResponseDto> dtoList = entityListToDtoList(entityList);
+        log.info(dtoList.toString());
+        return dtoList;
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public List<ChallengeSummaryResponseDto> getActiveChallengeListParticipatedByUser(Long userId) {
+        User user = userRepository.findById(userId).orElseThrow(() -> new BusinessException(USER_NOT_FOUND));
+        List<Challenge> entityList = participantRepository.findByUser(user);
         List<ChallengeSummaryResponseDto> dtoList = entityListToDtoList(entityList);
         log.info(dtoList.toString());
         return dtoList;

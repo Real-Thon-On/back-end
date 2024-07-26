@@ -93,4 +93,13 @@ public class ChallengeController {
         return ResponseEntity.status(HttpStatus.OK) .body(ResponseUtil.createSuccessResponse( responseDtos ));
     }
 
+    //해당 사용자가 참여한 챌린지 목록
+    @GetMapping("/user/participate")
+    public ResponseEntity<ResponseBody<List<ChallengeSummaryResponseDto>>> getActiveChallengeListParticipatedByUser( @AuthenticationPrincipal CustomUserPrincipal user) {
+        List<ChallengeSummaryResponseDto> responseDtos = challengeService.getActiveChallengeListParticipatedByUser(user.getUserId());
+        return ResponseEntity.status(HttpStatus.OK) .body(ResponseUtil.createSuccessResponse( responseDtos ));
+    }
+
+
+
 }
