@@ -1,0 +1,16 @@
+package com.fizz.fizz_server.domain.user.dto.response;
+
+import lombok.Builder;
+
+import java.util.List;
+
+@Builder
+public record UserDetailInfoResponse (
+        Long id,
+        String nickname,
+        String profileId,
+        String profileImage,
+        String aboutMe,
+        List<UserInfo> follower,
+        List<UserInfo> following
+) {}

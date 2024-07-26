@@ -23,6 +23,9 @@ public enum ExceptionType {
     DUPLICATED_EMAIL(CONFLICT, "U003", "중복 이메일"),
     FORBIDDEN(HttpStatus.FORBIDDEN, "U004", "권한이 없음"),
     UN_AUTHENTICATION(UNAUTHORIZED, "U005", "인증이 필요함"),
+    ALREADY_FOLLOW(BAD_REQUEST, "U006", "이미 팔로우한 사용자입니다."),
+    SELF_FOLLOW(BAD_REQUEST, "U007", "자기 자신은 팔로우할 수 없습니다."),
+    FOLLOW_NOT_FOUND(BAD_REQUEST, "U007", "팔로우를 하지 않은 사용자입니다."),
 
     // challenge
     NON_EXISTENT_CHALLENGE_ERROR(BAD_REQUEST,"CH001","존재하지 않는 챌린지"),

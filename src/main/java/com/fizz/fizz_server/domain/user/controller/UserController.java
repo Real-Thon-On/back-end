@@ -4,7 +4,7 @@ import com.fizz.fizz_server.domain.user.domain.CustomUserPrincipal;
 import com.fizz.fizz_server.domain.user.dto.request.CheckProfileIdRequest;
 import com.fizz.fizz_server.domain.user.dto.request.UserInfoUpdateRequest;
 import com.fizz.fizz_server.domain.user.dto.response.CheckProfileIdResponse;
-import com.fizz.fizz_server.domain.user.dto.response.UserInfoResponse;
+import com.fizz.fizz_server.domain.user.dto.response.UserDetailInfoResponse;
 import com.fizz.fizz_server.domain.user.service.UserService;
 import com.fizz.fizz_server.global.base.response.ResponseBody;
 import com.fizz.fizz_server.domain.user.dto.request.ProfileIdAndEmailSetRequest;
@@ -30,8 +30,14 @@ public class UserController {
         return ResponseEntity.ok(createSuccessResponse());
     }
 
+    @GetMapping("/me")
+    public ResponseEntity<ResponseBody<UserDetailInfoResponse>> updateUserOwnInfo(@AuthenticationPrincipal CustomUserPrincipal userPrincipal) {
+        UserDetailInfoResponse response = userService.getUserOwnInfo(userPrincipal.getUserId());
+        return ResponseEntity.ok(createSuccessResponse(response));
+    }
+
     @PatchMapping("/me")
-    public ResponseEntity<ResponseBody<Void>> me(@AuthenticationPrincipal CustomUserPrincipal userPrincipal,
+    public ResponseEntity<ResponseBody<Void>> getUserOwnInfo(@AuthenticationPrincipal CustomUserPrincipal userPrincipal,
                                                  @Valid @RequestBody UserInfoUpdateRequest request) {
         userService.updateUserInfo(userPrincipal.getUserId(), request);
         return ResponseEntity.ok(createSuccessResponse());
@@ -45,9 +51,23 @@ public class UserController {
     }
 
     @GetMapping("/{profileId}")
-    public ResponseEntity<ResponseBody<UserInfoResponse>> getProfileInfo(@PathVariable String profileId) {
-        UserInfoResponse response = userService.getProfileInfo(profileId);
+    public ResponseEntity<ResponseBody<UserDetailInfoResponse>> getProfileInfo(@PathVariable String profileId) {
+        UserDetailInfoResponse response = userService.getUserInfoByProfileId(profileId);
         return ResponseEntity.ok(createSuccessResponse(response));
+    }
+
+    @PostMapping("/following/{userId}")
+    public ResponseEntity<ResponseBody<Void>> followUser(@AuthenticationPrincipal CustomUserPrincipal userPrincipal,
+                                                         @PathVariable Long userId) {
+        userService.followUser(userPrincipal.getUserId(), userId);
+        return ResponseEntity.ok(createSuccessResponse());
+    }
+
+    @DeleteMapping("/following/{userId}")
+    public ResponseEntity<ResponseBody<Void>> unfollowUser(@AuthenticationPrincipal CustomUserPrincipal userPrincipal,
+                                                           @PathVariable Long userId) {
+        userService.unfollowUser(userPrincipal.getUserId(), userId);
+        return ResponseEntity.ok(createSuccessResponse());
     }
 
 }
