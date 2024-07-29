@@ -9,8 +9,10 @@ import com.fizz.fizz_server.domain.post.domain.View;
 import com.fizz.fizz_server.domain.post.domain.vo.FileType;
 import com.fizz.fizz_server.domain.post.dto.request.PostRequest;
 import com.fizz.fizz_server.domain.post.dto.response.PostInfo;
+import com.fizz.fizz_server.domain.post.repository.PostLikeRepository;
 import com.fizz.fizz_server.domain.post.repository.PostRepository;
 import com.fizz.fizz_server.domain.post.repository.ViewRepository;
+import com.fizz.fizz_server.domain.user.domain.CustomUserPrincipal;
 import com.fizz.fizz_server.domain.user.domain.User;
 import com.fizz.fizz_server.domain.user.repository.UserRepository;
 import com.fizz.fizz_server.global.base.response.exception.BusinessException;
@@ -37,7 +39,7 @@ public class PostService {
     private final ChallengeRepository challengeRepository;
     private final ViewRepository viewRepository;
     private final ParticipantRepository participantRepository;
-
+    private final PostLikeRepository postLikeRepository;
 
     @Transactional
     public void upload(Long challengeId, PostRequest request, Long userId) {
@@ -139,4 +141,8 @@ public class PostService {
     }
 
 
+    public Page<PostInfo> getPostsByUserLike(Long userId, Pageable pageable) {
+        return postLikeRepository.findPostsByUserId(userId, pageable)
+                .map(PostInfo::from);
+    }
 }
