@@ -44,7 +44,7 @@ public class UserController {
     }
 
     @GetMapping("/check/profileId")
-    public ResponseEntity<ResponseBody<CheckProfileIdResponse>> isProfileIdDuplicate(@Valid @RequestBody CheckProfileIdRequest request) {
+    public ResponseEntity<ResponseBody<CheckProfileIdResponse>> isProfileIdDuplicate(@Valid @ModelAttribute CheckProfileIdRequest request) {
 
         CheckProfileIdResponse response = userService.isProfileIdDuplicate(request.getProfileId());
         return ResponseEntity.ok(createSuccessResponse(response));
