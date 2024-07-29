@@ -20,12 +20,20 @@ public record PostInfo(
         int likeCount,
         @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
         LocalDateTime createdAt,
-        UserInfo userInfo
+        UserInfo userInfo,
+        ChallengeInfo challengeInfo
 ) {
     public record UserInfo(
             Long id,
             String nickname,
             String profileImage
+    ) {
+    }
+
+    public record ChallengeInfo(
+            Long id,
+            String title,
+            String description
     ) {
     }
 
@@ -44,6 +52,11 @@ public record PostInfo(
                         post.getUser().getId(),
                         post.getUser().getNickname(),
                         post.getUser().getProfileImage()
+                ))
+                .challengeInfo(new ChallengeInfo(
+                        post.getChallenge().getId(),
+                        post.getChallenge().getTitle(),
+                        post.getChallenge().getDescription()
                 ))
                 .build();
     }
