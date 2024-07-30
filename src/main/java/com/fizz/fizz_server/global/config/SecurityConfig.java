@@ -50,7 +50,10 @@ public class SecurityConfig {
 
                 .authorizeHttpRequests((auth) -> auth
                         .requestMatchers(HttpMethod.POST, "/api/user/login-info").hasRole("GUEST") // 오직 첫   로그인 유저
+                        .requestMatchers(HttpMethod.GET, "/api/user/me").hasRole("USER")
+                        .requestMatchers(HttpMethod.GET, "/api/user/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/user/**").hasRole("USER")
+                        .requestMatchers(HttpMethod.PATCH, "/api/user/**").hasRole("USER")
                         .requestMatchers(HttpMethod.DELETE, "/api/user/**").hasRole("USER")
                         .requestMatchers(HttpMethod.POST, "/api/files/**").hasAnyRole("USER", "ADMIN")
                         .requestMatchers(HttpMethod.POST, "/api/posts/**").hasAnyRole("USER", "ADMIN")
@@ -61,7 +64,6 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/api/comment/**").hasAnyRole("USER")
                         .requestMatchers(HttpMethod.DELETE, "/api/comment/**").hasAnyRole("USER")
                         .requestMatchers(HttpMethod.PATCH, "/api/comment/**").hasAnyRole("USER")
-                        .requestMatchers("/**").permitAll()
                         .anyRequest().hasRole("ADMIN"))
                 .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .oauth2Login(configure ->
