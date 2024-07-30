@@ -8,6 +8,7 @@ import com.fizz.fizz_server.domain.file.dto.request.PreSignedUploadInitiateReque
 import com.fizz.fizz_server.domain.file.dto.request.PreSignedUrlCreateRequest;
 import com.fizz.fizz_server.domain.file.service.FileService;
 import com.fizz.fizz_server.domain.user.domain.CustomUserPrincipal;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -30,14 +31,14 @@ public class FileController {
 
     @PostMapping("/initiate-upload/post/{postId}")
     public InitiateMultipartUploadResult initiateUploadToPost(@PathVariable Long postId,
-                                                        @RequestBody PreSignedUploadInitiateRequest request) {
+                                                              @RequestBody @Valid PreSignedUploadInitiateRequest request) {
         InitiateMultipartUploadRequest initiateMultipartUploadRequest = fileService.initiateUpload(request, postId, null);
 
         return amazonS3Client.initiateMultipartUpload(initiateMultipartUploadRequest);
     }
 
     @PostMapping("/initiate-upload")
-    public InitiateMultipartUploadResult initiateUploadToUser(@RequestBody PreSignedUploadInitiateRequest request,
+    public InitiateMultipartUploadResult initiateUploadToUser(@RequestBody @Valid PreSignedUploadInitiateRequest request,
                                                               @AuthenticationPrincipal CustomUserPrincipal user) {
         InitiateMultipartUploadRequest initiateMultipartUploadRequest = fileService.initiateUpload(request, null, user.getUserId());
 
