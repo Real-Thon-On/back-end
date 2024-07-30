@@ -4,6 +4,7 @@ import com.fizz.fizz_server.domain.category.domain.Category;
 import com.fizz.fizz_server.domain.category.domain.CategoryRecommendation;
 import com.fizz.fizz_server.domain.category.dto.request.CategoryRecommendRequestDto;
 import com.fizz.fizz_server.domain.category.dto.request.CategoryRequestDto;
+import com.fizz.fizz_server.domain.category.dto.response.CategoryInfoResponseDto;
 import com.fizz.fizz_server.domain.category.repository.CategoryRecommendationRepository;
 import com.fizz.fizz_server.domain.category.repository.CategoryRepository;
 import com.fizz.fizz_server.domain.user.domain.User;
@@ -13,6 +14,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 import static com.fizz.fizz_server.global.base.response.exception.ExceptionType.USER_NOT_FOUND;
 
@@ -25,6 +29,15 @@ public class CategoryServiceImpl implements CategoryService{
     private final CategoryRecommendationRepository categoryRecommendationRepository;
     private final UserRepository userRepository;
 
+    @Transactional(readOnly = true)
+    @Override
+    public List<CategoryInfoResponseDto> getAllCategories() {
+        List<Category> entityList= categoryRepository.findAll();
+        List<CategoryInfoResponseDto> dtoList = entityList.
+                        stream().map(entity-> CategoryInfoResponseDto.toDTO(entity)).
+                        collect(Collectors.toList());
+        return dtoList;
+    }
 
     @Transactional
     @Override
