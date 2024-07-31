@@ -5,6 +5,7 @@ import com.fizz.fizz_server.domain.comment.dto.request.ChangeCommentRequestDto;
 import com.fizz.fizz_server.domain.comment.dto.request.CreateChildCommentRequestDto;
 import com.fizz.fizz_server.domain.comment.dto.request.CreateParentCommentRequestDto;
 import com.fizz.fizz_server.domain.comment.dto.response.CommentInfoResponseDto;
+import com.fizz.fizz_server.domain.comment.dto.response.CommentInfoWithChildCountResponseDto;
 import com.fizz.fizz_server.domain.comment.dto.response.CommentIsLikeResponseDto;
 import com.fizz.fizz_server.domain.comment.service.CommentService;
 import com.fizz.fizz_server.domain.user.domain.CustomUserPrincipal;
@@ -48,8 +49,8 @@ public class CommentController {
 
     // 해당 게시글의 모든 부모 댓글 조회
     @GetMapping("/post/{postId}")
-    public ResponseEntity<ResponseBody<List<CommentInfoResponseDto>>> getAllParentCommentsByPostId(@PathVariable Long postId){
-        List<CommentInfoResponseDto> responseDtos= commentService.getAllParentCommentsByPostId(postId);
+    public ResponseEntity<ResponseBody<List<CommentInfoWithChildCountResponseDto>>> getAllParentCommentsByPostId(@PathVariable Long postId){
+        List<CommentInfoWithChildCountResponseDto> responseDtos= commentService.getAllParentCommentsByPostId(postId);
         return ResponseEntity.status(HttpStatus.OK) .body(ResponseUtil.createSuccessResponse(responseDtos));
     }
 

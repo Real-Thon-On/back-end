@@ -4,6 +4,7 @@ import com.fizz.fizz_server.domain.comment.dto.request.ChangeCommentRequestDto;
 import com.fizz.fizz_server.domain.comment.dto.request.CreateChildCommentRequestDto;
 import com.fizz.fizz_server.domain.comment.dto.request.CreateParentCommentRequestDto;
 import com.fizz.fizz_server.domain.comment.dto.response.CommentInfoResponseDto;
+import com.fizz.fizz_server.domain.comment.dto.response.CommentInfoWithChildCountResponseDto;
 import com.fizz.fizz_server.domain.comment.dto.response.CommentIsLikeResponseDto;
 import com.fizz.fizz_server.domain.user.domain.User;
 
@@ -17,7 +18,7 @@ public interface CommentService {
     void createChildCommentByPostId(Long postId, CreateChildCommentRequestDto requestDto, Long userId);
 
     // 해당 게시글의 모든 부모 댓글 조회
-    List<CommentInfoResponseDto> getAllParentCommentsByPostId(Long postId);
+    List<CommentInfoWithChildCountResponseDto> getAllParentCommentsByPostId(Long postId);
 
     // 해당 댓글의 모든 대댓글 조회
     List<CommentInfoResponseDto> getAllChildCommentsByCommentId(Long commentId);
