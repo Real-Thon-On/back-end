@@ -8,6 +8,7 @@ import java.util.List;
 public record UserDetailInfoResponse (
         Long id,
         String nickname,
+        String email,
         String profileId,
         String profileImage,
         String aboutMe,

@@ -104,6 +104,7 @@ public class UserService {
 
         return UserDetailInfoResponse.builder()
                 .id(user.getId())
+                .email(user.getEmail())
                 .profileId(user.getProfileId())
                 .nickname(user.getNickname())
                 .profileImage(user.getProfileImage())
