@@ -3,11 +3,13 @@ package com.fizz.fizz_server.global.oauth2.repository;
 import com.fizz.fizz_server.global.utils.CookieUtils;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.oauth2.client.web.AuthorizationRequestRepository;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
+@Slf4j
 @Component
 public class HttpCookieOAuth2AuthorizationRequestRepository implements AuthorizationRequestRepository<OAuth2AuthorizationRequest> {
     public static final String OAUTH2_AUTHORIZATION_REQUEST_COOKIE_NAME = "oauth2_auth_request";
@@ -25,6 +27,7 @@ public class HttpCookieOAuth2AuthorizationRequestRepository implements Authoriza
     @Override
     public void saveAuthorizationRequest(OAuth2AuthorizationRequest authorizationRequest, HttpServletRequest request, HttpServletResponse response) {
         if (authorizationRequest == null) {
+            log.info("saveAuthorizationRequest: authorizationRequest is null");
             this.removeAuthorizationRequestCookies(request, response);
             return;
         }
