@@ -25,10 +25,6 @@ public class FileController {
     private final FileService fileService;
     private final AmazonS3 amazonS3Client;
 
-    /**
-     * TODO. userId를 입력받아야 함. (token)
-     */
-
     @PostMapping("/initiate-upload/post/{postId}")
     public InitiateMultipartUploadResult initiateUploadToPost(@PathVariable Long postId,
                                                               @RequestBody @Valid PreSignedUploadInitiateRequest request) {
@@ -46,14 +42,14 @@ public class FileController {
     }
 
     @PostMapping("/presigned-url")
-    public URL preSignedUrl(@RequestBody PreSignedUrlCreateRequest request) {
+    public URL preSignedUrl(@RequestBody @Valid PreSignedUrlCreateRequest request) {
         GeneratePresignedUrlRequest generatePresignedUrlRequest = fileService.preSignedUrl(request);
 
         return amazonS3Client.generatePresignedUrl(generatePresignedUrlRequest);
     }
 
     @PostMapping("/complete-upload")
-    public CompleteMultipartUploadResult completeUpload(@RequestBody FinishUploadRequest finishUploadRequest) {
+    public CompleteMultipartUploadResult completeUpload(@RequestBody @Valid FinishUploadRequest finishUploadRequest) {
         CompleteMultipartUploadRequest completeMultipartUploadRequest = fileService.completeUpload(finishUploadRequest);
 
         return amazonS3Client.completeMultipartUpload(completeMultipartUploadRequest);
