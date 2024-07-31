@@ -6,6 +6,7 @@ import com.fizz.fizz_server.domain.comment.dto.request.ChangeCommentRequestDto;
 import com.fizz.fizz_server.domain.comment.dto.request.CreateChildCommentRequestDto;
 import com.fizz.fizz_server.domain.comment.dto.request.CreateParentCommentRequestDto;
 import com.fizz.fizz_server.domain.comment.dto.response.CommentInfoResponseDto;
+import com.fizz.fizz_server.domain.comment.dto.response.CommentInfoWithChildCountResponseDto;
 import com.fizz.fizz_server.domain.comment.dto.response.CommentIsLikeResponseDto;
 import com.fizz.fizz_server.domain.comment.repository.CommentLikeRepository;
 import com.fizz.fizz_server.domain.comment.repository.CommentRepository;
@@ -66,10 +67,9 @@ public class CommentServiceImpl implements CommentService{
 
     @Transactional(readOnly = true)
     @Override
-    public List<CommentInfoResponseDto> getAllParentCommentsByPostId(Long postId) {
+    public List<CommentInfoWithChildCountResponseDto> getAllParentCommentsByPostId(Long postId) {
         Post post = postRepository.findById(postId).orElseThrow(()->new BusinessException(POST_NOT_FOUND));
-        List<Comment> entityList= commentRepository.findByPostAndParentIsNull(post);
-        List<CommentInfoResponseDto> dtoList = entityListToDtoList(entityList);
+        List<CommentInfoWithChildCountResponseDto> dtoList= commentRepository.findParentCommentsWithChildCountByPost(post);
         log.info(dtoList.toString());
         return dtoList;
     }
@@ -135,4 +135,7 @@ public class CommentServiceImpl implements CommentService{
                 .collect(Collectors.toList());
         return dtoList;
     }
+
+
+
 }
