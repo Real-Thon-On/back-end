@@ -40,12 +40,16 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException {
         String targetUrl = determineTargetUrl(request, response, authentication);
 
+        log.info("determineTargetUrl={}", targetUrl);
+
         if (response.isCommitted()) {
             log.debug("Response has already been committed. Unable to redirect to {}", targetUrl);
             return;
         }
 
         clearAuthenticationAttributes(request, response);
+
+        log.info("after clear Authentication: targetUrl={}", targetUrl);
         getRedirectStrategy().sendRedirect(request, response, targetUrl);
     }
 
@@ -70,6 +74,8 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
             String providerId = principal.getUserInfo().getId();
             OAuth2Provider provider = principal.getUserInfo().getProvider();
 
+            log.info("providerId={}, provider={}", providerId, provider);
+
             // 새로운 유저인지 전달 - 우선 쿼리 파라미터에 담지만, 방식 변경 가능
             AtomicReference<Boolean> isNewUser = new AtomicReference<>(false);
 
@@ -85,6 +91,8 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
 
             String accessToken = tokenProvider.createToken(user.getId(), user.getRole());
             // 리프레시 토큰 발급, 리프레시 토큰 DB 저장
+
+            log.info("userId={}, provider={}, providerId={}", user.getId(), user.getProvider(), user.getProviderId());
 
             log.info("email={}, nickname={}, accessToken={}",
                     principal.getUserInfo().getEmail(),
