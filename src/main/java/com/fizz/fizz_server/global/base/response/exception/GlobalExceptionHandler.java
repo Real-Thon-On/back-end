@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
 
 import static com.fizz.fizz_server.global.base.response.ResponseUtil.createFailureResponse;
 
@@ -39,6 +40,16 @@ public class GlobalExceptionHandler {
         return ResponseEntity
                 .status(HttpStatus.CONFLICT)
                 .body(ResponseUtil.createFailureResponse(ExceptionType.DUPLICATE_VALUE_ERROR));
+    }
+
+    @ExceptionHandler(MaxUploadSizeExceededException.class)
+    protected ResponseEntity<ResponseBody<Void>> handleMaxUploadSizeExceededException(
+            MaxUploadSizeExceededException e) {
+        log.info("handleMaxUploadSizeExceededException : {}", e.getMessage());
+
+        return ResponseEntity
+                .status(ExceptionType.FILE_TOO_LARGE.getStatus())
+                .body(createFailureResponse(ExceptionType.FILE_TOO_LARGE));
     }
 
     @ExceptionHandler(Exception.class)
