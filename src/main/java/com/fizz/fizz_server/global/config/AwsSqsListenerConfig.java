@@ -1,6 +1,6 @@
 package com.fizz.fizz_server.global.config;
 
-import com.fizz.fizz_server.global.config.properties.AwsS3Properties;
+import com.fizz.fizz_server.global.config.properties.AwsProperties;
 import io.awspring.cloud.sqs.config.SqsMessageListenerContainerFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -11,12 +11,12 @@ import software.amazon.awssdk.auth.credentials.AwsCredentials;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.sqs.SqsAsyncClient;
 
-@EnableConfigurationProperties(AwsS3Properties.class)
+@EnableConfigurationProperties(AwsProperties.class)
 @RequiredArgsConstructor
 @Configuration
 public class AwsSqsListenerConfig {
 
-    private final AwsS3Properties awsS3Properties;
+    private final AwsProperties awsProperties;
 
     @Primary
     // 클라이언트 설정
@@ -26,11 +26,11 @@ public class AwsSqsListenerConfig {
                 .credentialsProvider(() -> new AwsCredentials() {
                     @Override
                     public String accessKeyId() {
-                        return awsS3Properties.getAccessKey();
+                        return awsProperties.getAccessKey();
                     }
                     @Override
                     public String secretAccessKey() {
-                        return awsS3Properties.getSecretKey();
+                        return awsProperties.getSecretKey();
                     }
                 })
                 .region(Region.AP_NORTHEAST_2)
