@@ -64,6 +64,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/api/comment/**").hasAnyRole("USER")
                         .requestMatchers(HttpMethod.DELETE, "/api/comment/**").hasAnyRole("USER")
                         .requestMatchers(HttpMethod.PATCH, "/api/comment/**").hasAnyRole("USER")
+                        .requestMatchers(HttpMethod.GET, "/**").permitAll()
                         .anyRequest().hasRole("ADMIN"))
                 .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .oauth2Login(configure ->
