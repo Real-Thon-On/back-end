@@ -8,8 +8,8 @@ import org.springframework.stereotype.Component;
 @Component
 public class TransferListener {
 
-    @SqsListener("${aws.sqs.queue-name}")
+    @SqsListener(value = "${aws.sqs.queue-name}")
     public void messageListener(String message) {
-        log.info("Listener: " + message);
+        log.info("sns message : {}" , message);
     }
 }
