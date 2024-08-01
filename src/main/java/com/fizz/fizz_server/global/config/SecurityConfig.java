@@ -62,7 +62,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/challenge/**").permitAll()
                         .requestMatchers(HttpMethod.DELETE, "/api/category/**").hasAnyRole("ADMIN")
                         .requestMatchers(HttpMethod.POST, "/api/category").hasAnyRole("ADMIN")
-                        .requestMatchers(HttpMethod.POST, "/api/category/**").hasAnyRole("USER")
+                        .requestMatchers(HttpMethod.POST, "/api/category/user").hasAnyRole("USER")
                         .requestMatchers(HttpMethod.GET, "/api/category/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/comment/**").hasAnyRole("USER")
                         .requestMatchers(HttpMethod.DELETE, "/api/comment/**").hasAnyRole("USER")
