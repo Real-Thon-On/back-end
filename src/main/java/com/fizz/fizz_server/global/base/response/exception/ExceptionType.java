@@ -37,9 +37,14 @@ public enum ExceptionType {
     // post
     POST_NOT_FOUND(NOT_FOUND, "P001", "존재하지 않는 게시글"),
     POST_USER_NOT_MATCHED(BAD_REQUEST, "P002", "해당 게시글의 사용자가 아님"),
-    FILE_NOT_FOUND(NOT_FOUND, "P003", "파일이 존재하지 않습니다."),
-    ALREADY_LIKED(BAD_REQUEST, "P004", "이미 좋아요 누른 게시글입니다."),
-    NOT_LIKED(BAD_REQUEST, "P005", "좋아요를 누르지 않은 게시글입니다."),
+    ALREADY_LIKED(BAD_REQUEST, "P003", "이미 좋아요 누른 게시글입니다."),
+    NOT_LIKED(BAD_REQUEST, "P004", "좋아요를 누르지 않은 게시글입니다."),
+
+    // file
+    FILE_NOT_FOUND(NOT_FOUND, "F001", "파일이 존재하지 않음."),
+    FILENAME_NOT_FOUND(NOT_FOUND, "F002", "파일의 이름이 존재하지 않음."),
+    FAIL_FILE_UPLOAD(NOT_FOUND, "F003", "파일 업로드에 실패."),
+    FILE_TOO_LARGE(PAYLOAD_TOO_LARGE, "F004", "파일 크기가 너무 큼."),
 
     // comment
     NON_EXISTENT_COMMENT_ERROR(BAD_REQUEST,"C007","존재하지 않는 댓글")

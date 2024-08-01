@@ -100,5 +100,14 @@ public class PostController {
         return ResponseEntity.ok(createSuccessResponse(responses));
     }
 
+    /**
+     * 사용자가 좋아요한 글 목록 조회
+     */
+    @GetMapping("/users/like")
+    public ResponseEntity<ResponseBody<Page<PostInfo>>> searchPosts(@AuthenticationPrincipal CustomUserPrincipal user,
+                                                                    Pageable pageable) {
+        Page<PostInfo> responses = postService.getPostsByUserLike(user.getUserId(), pageable);
 
+        return ResponseEntity.ok(createSuccessResponse(responses));
+    }
 }

@@ -56,6 +56,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.PATCH, "/api/user/**").hasRole("USER")
                         .requestMatchers(HttpMethod.DELETE, "/api/user/**").hasRole("USER")
                         .requestMatchers(HttpMethod.POST, "/api/files/**").hasAnyRole("USER", "ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/api/notify/subscribe").hasRole("USER")
                         .requestMatchers(HttpMethod.POST, "/api/posts/**").hasAnyRole("USER", "ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/api/posts/**").hasAnyRole("USER", "ADMIN")
                         .requestMatchers(HttpMethod.POST, "/api/challenge/**").hasAnyRole("USER")
@@ -67,6 +68,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.DELETE, "/api/comment/**").hasAnyRole("USER")
                         .requestMatchers(HttpMethod.PATCH, "/api/comment/**").hasAnyRole("USER")
                         .requestMatchers(HttpMethod.GET, "/api/comment/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/**").permitAll()
                         .anyRequest().hasRole("ADMIN"))
                 .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .oauth2Login(configure ->
