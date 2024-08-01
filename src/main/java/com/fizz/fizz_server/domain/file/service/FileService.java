@@ -31,17 +31,17 @@ public class FileService {
     public static final String VOD = "vod";
     public static final String UPLOAD_ID = "uploadId";
     public static final String PART_NUMBER = "partNumber";
-    public static final String POST_IMAGE_PATH_FORMAT = "user/%s/post/%d/image/%s/%s";
+    public static final String POST_IMAGE_PATH_FORMAT = "user/%s/image/%s/%s";
     public static final String PROFILE_IMAGE_PATH_FORMAT = "user/%s/profile-image/%s/%s";
 
     private final AwsProperties awsProperties;
     private final AmazonS3 amazonS3Client;
 
-    public String uploadFile(Long postId, Long userId, MultipartFile multipartFile) {
+    public String uploadFile(Long userId, MultipartFile multipartFile) {
         this.validateFileExists(multipartFile);
         String fileName = CommonUtils.buildFileName(Objects.requireNonNull(multipartFile.getOriginalFilename()));
         String uuid = UUID.randomUUID().toString();
-        String s3Path = String.format(POST_IMAGE_PATH_FORMAT, userId, postId, uuid, fileName);
+        String s3Path = String.format(POST_IMAGE_PATH_FORMAT, userId, uuid, fileName);
         return uploadToS3(s3Path, multipartFile);
     }
 
@@ -77,10 +77,10 @@ public class FileService {
         return String.format("https://%s/%s", cloudFrontDomain, s3Path);
     }
 
-    public InitiateMultipartUploadRequest initiateUpload(PreSignedUploadInitiateRequest request, Long postId, Long userId) {
+    public InitiateMultipartUploadRequest initiateUpload(PreSignedUploadInitiateRequest request, Long userId) {
         String fullName = request.originalFileName() + "." + request.fileFormat();
         String uuid = UUID.randomUUID().toString();
-        String objectName = constructObjectName(userId, postId, uuid, fullName);
+        String objectName = constructObjectName(userId, uuid, fullName);
         ObjectMetadata objectMetadata = createObjectMetadata(request, fullName);
 
         return new InitiateMultipartUploadRequest(
@@ -89,8 +89,8 @@ public class FileService {
                 objectMetadata);
     }
 
-    private String constructObjectName(Long userId, Long postId, String uuid, String fullName) {
-        String folderStructure = String.format("user/%d/post/%d/%s/%s", userId, postId, uuid, fullName);
+    private String constructObjectName(Long userId, String uuid, String fullName) {
+        String folderStructure = String.format("user/%d/%s/%s", userId, uuid, fullName);
         return String.format("%s/%s", VOD, folderStructure);
     }
 

@@ -29,30 +29,28 @@ public class FileController {
     /**
      * 게시글 이미지 업로드
      */
-    @PostMapping("/image/upload/post/{postId}")
-    public String uploadFile(@PathVariable Long postId,
-                             @AuthenticationPrincipal CustomUserPrincipal userPrincipal,
+    @PostMapping("/image/upload")
+    public String uploadFile(@AuthenticationPrincipal CustomUserPrincipal userPrincipal,
                              @RequestPart(value = "file") MultipartFile multipartFile) {
-        return fileService.uploadFile(postId, userPrincipal.getUserId(), multipartFile);
+        return fileService.uploadFile(userPrincipal.getUserId(), multipartFile);
     }
 
     /**
      * 사용자 프로필 이미지 업로드
      */
-    @PostMapping("/image/upload")
-    public String uploadFile(@AuthenticationPrincipal CustomUserPrincipal userPrincipal,
-                             @RequestPart(value = "file") MultipartFile multipartFile) {
+    @PostMapping("/profile-image/upload")
+    public String uploadProfileImage(@AuthenticationPrincipal CustomUserPrincipal userPrincipal,
+                                     @RequestPart(value = "file") MultipartFile multipartFile) {
         return fileService.uploadProfileImage(userPrincipal.getUserId(), multipartFile);
     }
 
     /**
      * 동영상 업로드를 위한 업로드 시작 요청
      */
-    @PostMapping("/initiate-upload/post/{postId}")
-    public InitiateMultipartUploadResult initiateUploadToPost(@PathVariable Long postId,
-                                                              @RequestBody @Valid PreSignedUploadInitiateRequest request,
+    @PostMapping("/initiate-upload")
+    public InitiateMultipartUploadResult initiateUploadToPost(@RequestBody @Valid PreSignedUploadInitiateRequest request,
                                                               @AuthenticationPrincipal CustomUserPrincipal userPrincipal) {
-        InitiateMultipartUploadRequest initiateMultipartUploadRequest = fileService.initiateUpload(request, postId, userPrincipal.getUserId());
+        InitiateMultipartUploadRequest initiateMultipartUploadRequest = fileService.initiateUpload(request, userPrincipal.getUserId());
 
         return amazonS3Client.initiateMultipartUpload(initiateMultipartUploadRequest);
     }
