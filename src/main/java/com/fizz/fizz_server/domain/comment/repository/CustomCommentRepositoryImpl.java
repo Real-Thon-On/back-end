@@ -21,7 +21,9 @@ public class CustomCommentRepositoryImpl implements CustomCommentRepository {
                 "c.user.id, " +
                 "c.content, " +
                 "SIZE(c.commentLikes), " +
-                "COUNT(child)) " +
+                "COUNT(child), " +
+                "c.user.nickname, " +
+                "c.createdAt) " +
                 "FROM Comment c LEFT JOIN c.children child " +
                 "WHERE c.post = :post AND c.parent IS NULL " +
                 "GROUP BY c";
