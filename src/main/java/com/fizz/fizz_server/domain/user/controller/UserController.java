@@ -5,6 +5,7 @@ import com.fizz.fizz_server.domain.user.dto.request.CheckProfileIdRequest;
 import com.fizz.fizz_server.domain.user.dto.request.UserInfoUpdateRequest;
 import com.fizz.fizz_server.domain.user.dto.response.CheckProfileIdResponse;
 import com.fizz.fizz_server.domain.user.dto.response.UserDetailInfoResponse;
+import com.fizz.fizz_server.domain.user.dto.response.UserInfo;
 import com.fizz.fizz_server.domain.user.service.UserService;
 import com.fizz.fizz_server.global.base.response.ResponseBody;
 import com.fizz.fizz_server.domain.user.dto.request.ProfileIdAndEmailSetRequest;
@@ -14,6 +15,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 import static com.fizz.fizz_server.global.base.response.ResponseUtil.createSuccessResponse;
 
@@ -68,6 +71,12 @@ public class UserController {
                                                            @PathVariable Long userId) {
         userService.unfollowUser(userPrincipal.getUserId(), userId);
         return ResponseEntity.ok(createSuccessResponse());
+    }
+
+    @GetMapping("/search")
+    public ResponseEntity<ResponseBody<List<UserInfo>>> searchByNickname(@RequestParam String nickname) {
+        List<UserInfo> response = userService.searchByNickname(nickname);
+        return ResponseEntity.ok(createSuccessResponse(response));
     }
 
 }
