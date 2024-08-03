@@ -31,14 +31,14 @@ public class Challenge extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     private Category category;
 
-    @OneToMany(mappedBy = "challenge")
+    @OneToMany(mappedBy = "challenge", cascade = CascadeType.REMOVE)
     private List<Post> posts = new ArrayList<>();
 
     @ManyToOne
     @JoinColumn(name = "creator_id", nullable = false)
     private User creator;
 
-    @OneToMany(mappedBy = "challenge")
+    @OneToMany(mappedBy = "challenge", cascade = CascadeType.REMOVE)
     private List<Participant> participants = new ArrayList<>();
 
     @Column(nullable = false)
