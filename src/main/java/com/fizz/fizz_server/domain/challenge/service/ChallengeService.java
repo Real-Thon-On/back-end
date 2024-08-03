@@ -3,6 +3,8 @@ import com.fizz.fizz_server.domain.challenge.dto.request.CreateChallengeRequestD
 import com.fizz.fizz_server.domain.challenge.dto.response.ChallengeInfoResponseDto;
 import com.fizz.fizz_server.domain.challenge.dto.response.ChallengeSummaryResponseDto;
 import com.fizz.fizz_server.domain.user.domain.User;
+import org.springframework.web.bind.annotation.RequestParam;
+
 import java.util.List;
 
 public interface ChallengeService {
@@ -14,6 +16,9 @@ public interface ChallengeService {
 
     //챌린지명 기반 챌린지 상세정보 조회
     public ChallengeInfoResponseDto getChallengeInfoByChallengeTitle( String challengeTitle );
+
+    //키워드 기반 챌린지 상세정보 목록 조회
+    public List<ChallengeInfoResponseDto> getChallengeInfos(String keyword );
 
     //챌린지를 잠든 상태로 전환
     public Integer changeStateToSleeping();
