@@ -40,7 +40,7 @@ public class Comment extends BaseEntity {
     @OneToMany(fetch = FetchType.LAZY ,mappedBy = "parent", cascade = CascadeType.ALL)
     private List<Comment> children = new ArrayList<>();
 
-    @OneToMany(mappedBy = "comment")
+    @OneToMany(mappedBy = "comment", cascade = CascadeType.ALL)
     private Set<CommentLike> commentLikes = new HashSet<>();
 
     @Builder

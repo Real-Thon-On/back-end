@@ -61,10 +61,10 @@ public class User extends BaseEntity {
     @OneToMany(mappedBy = "user")
     private List<Post> posts = new ArrayList<>();
 
-    @OneToMany(mappedBy = "user")
+    @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE)
     private List<Comment> comments = new ArrayList<>();
 
-    @OneToMany(mappedBy = "creator")
+    @OneToMany(mappedBy = "creator", cascade = CascadeType.REMOVE)
     private List<Challenge> createdChallenges = new ArrayList<>();
 
     @OneToMany(mappedBy = "user")
@@ -73,11 +73,10 @@ public class User extends BaseEntity {
     @OneToMany(mappedBy = "user")
     private Set<CommentLike> commentLikes = new HashSet<>();
 
-    @OneToMany(mappedBy = "user")
+    @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE)
     private List<Participant> participants = new ArrayList<>();
 
-
-    @OneToMany(mappedBy = "user")
+    @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE)
     private List<CategoryRecommendation> recommendations = new ArrayList<>();
 
 
