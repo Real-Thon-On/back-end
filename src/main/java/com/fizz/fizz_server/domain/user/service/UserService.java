@@ -165,4 +165,9 @@ public class UserService {
         followRepository.delete(deleteFollow);
     }
 
+    public List<UserInfo> searchByNickname(String nickname) {
+        List<User> users = userRepository.findByNickname(nickname);
+        return convertToUserInfo(users);
+    }
+
 }
