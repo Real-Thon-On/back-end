@@ -5,8 +5,7 @@ import com.fizz.fizz_server.domain.comment.domain.CommentLike;
 import com.fizz.fizz_server.domain.comment.dto.request.ChangeCommentRequestDto;
 import com.fizz.fizz_server.domain.comment.dto.request.CreateChildCommentRequestDto;
 import com.fizz.fizz_server.domain.comment.dto.request.CreateParentCommentRequestDto;
-import com.fizz.fizz_server.domain.comment.dto.response.CommentInfoResponseDto;
-import com.fizz.fizz_server.domain.comment.dto.response.CommentInfoWithChildCountResponseDto;
+import com.fizz.fizz_server.domain.comment.dto.response.CommentDetailResponseDto;
 import com.fizz.fizz_server.domain.comment.dto.response.CommentIsLikeResponseDto;
 import com.fizz.fizz_server.domain.comment.repository.CommentLikeRepository;
 import com.fizz.fizz_server.domain.comment.repository.CommentRepository;
@@ -21,7 +20,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static com.fizz.fizz_server.global.base.response.exception.ExceptionType.*;
 
@@ -67,19 +65,18 @@ public class CommentServiceImpl implements CommentService{
 
     @Transactional(readOnly = true)
     @Override
-    public List<CommentInfoWithChildCountResponseDto> getAllParentCommentsByPostId(Long postId) {
+    public List<CommentDetailResponseDto> getAllParentCommentsByPostId(Long postId) {
         Post post = postRepository.findById(postId).orElseThrow(()->new BusinessException(POST_NOT_FOUND));
-        List<CommentInfoWithChildCountResponseDto> dtoList= commentRepository.findParentCommentsWithChildCountByPost(post);
+        List<CommentDetailResponseDto> dtoList= commentRepository.findParentCommentsWithChildCountByPost(post);
         log.info(dtoList.toString());
         return dtoList;
     }
 
     @Transactional(readOnly = true)
     @Override
-    public List<CommentInfoResponseDto> getAllChildCommentsByCommentId(Long commentId) {
+    public List<CommentDetailResponseDto> getAllChildCommentsByCommentId(Long commentId) {
         Comment parentComment = commentRepository.findById(commentId).orElseThrow(()->new BusinessException(NON_EXISTENT_COMMENT_ERROR));
-        List<Comment> entityList= commentRepository.findByParent(parentComment);
-        List<CommentInfoResponseDto> dtoList = entityListToDtoList(entityList);
+        List<CommentDetailResponseDto> dtoList= commentRepository.findChildCommentsByParent(parentComment);
         log.info(dtoList.toString());
         return dtoList;
     }
@@ -129,12 +126,7 @@ public class CommentServiceImpl implements CommentService{
         log.info("commentLike {} has been deleted",commentId);
     }
 
-    public List<CommentInfoResponseDto> entityListToDtoList(List<Comment> entityList){
-        List<CommentInfoResponseDto> dtoList
-                = entityList.stream().map(entity-> CommentInfoResponseDto.toDTO(entity))
-                .collect(Collectors.toList());
-        return dtoList;
-    }
+
 
 
 

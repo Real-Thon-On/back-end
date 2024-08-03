@@ -8,9 +8,8 @@ import java.time.LocalDateTime;
 @ToString
 @Setter
 @NoArgsConstructor
-@AllArgsConstructor
 @Getter
-public class CommentInfoWithChildCountResponseDto {
+public class CommentDetailResponseDto {
 
     private Long commentId;
     private Long parentId;
@@ -20,10 +19,23 @@ public class CommentInfoWithChildCountResponseDto {
     private Long childCount;
     private String nickname;
     private LocalDateTime createdAt;
+    private String profileImage;
+
+    public CommentDetailResponseDto(Long commentId, Long parentId, Long userId, String content, Integer likeCount, Long childCount, String nickname, LocalDateTime createdAt, String profileImage) {
+        this.commentId = commentId;
+        this.parentId = parentId;
+        this.userId = userId;
+        this.content = content;
+        this.likeCount = likeCount;
+        this.childCount = childCount;
+        this.nickname = nickname;
+        this.createdAt = createdAt;
+        this.profileImage = profileImage;
+    }
 
 
-    public static CommentInfoWithChildCountResponseDto toDTO(Comment comment, Long childCount ){
-        CommentInfoWithChildCountResponseDto dto = new CommentInfoWithChildCountResponseDto();
+    public static CommentDetailResponseDto toDTO(Comment comment, Long childCount ){
+        CommentDetailResponseDto dto = new CommentDetailResponseDto();
         dto.commentId = comment.getId();
         if(comment.getParent() != null ) dto.parentId = comment.getParent().getId();
         dto.userId = comment.getUser().getId();
@@ -32,6 +44,7 @@ public class CommentInfoWithChildCountResponseDto {
         dto.childCount = childCount;
         dto.nickname = comment.getUser().getNickname();
         dto.createdAt = comment.getCreatedAt();
+        dto.profileImage=comment.getUser().getProfileImage();
         return dto;
     }
 }
