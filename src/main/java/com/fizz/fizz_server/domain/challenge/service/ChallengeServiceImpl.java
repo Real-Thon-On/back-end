@@ -66,6 +66,14 @@ public class ChallengeServiceImpl implements ChallengeService{
         return responseDto;
     }
 
+    @Transactional(readOnly = true)
+    @Override
+    public List<ChallengeInfoResponseDto> getChallengeInfos(String keyword) {
+        List<ChallengeInfoResponseDto> responseDto = challengeRepository.findByTitleWithParticipantCount(keyword);
+        responseDto.forEach(info -> log.info(info.toString()));
+        return responseDto;
+    }
+
     @Transactional
     @Override
     public Integer changeStateToSleeping() {
