@@ -3,7 +3,6 @@ package com.fizz.fizz_server.domain.challenge.service;
 import com.fizz.fizz_server.domain.category.domain.Category;
 import com.fizz.fizz_server.domain.category.repository.CategoryRepository;
 import com.fizz.fizz_server.domain.challenge.domain.Challenge;
-import com.fizz.fizz_server.domain.challenge.domain.Participant;
 import com.fizz.fizz_server.domain.challenge.dto.request.CreateChallengeRequestDto;
 import com.fizz.fizz_server.domain.challenge.dto.response.ChallengeInfoResponseDto;
 import com.fizz.fizz_server.domain.challenge.dto.response.ChallengeSummaryResponseDto;

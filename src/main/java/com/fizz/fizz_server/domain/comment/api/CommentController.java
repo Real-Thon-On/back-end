@@ -4,8 +4,7 @@ package com.fizz.fizz_server.domain.comment.api;
 import com.fizz.fizz_server.domain.comment.dto.request.ChangeCommentRequestDto;
 import com.fizz.fizz_server.domain.comment.dto.request.CreateChildCommentRequestDto;
 import com.fizz.fizz_server.domain.comment.dto.request.CreateParentCommentRequestDto;
-import com.fizz.fizz_server.domain.comment.dto.response.CommentInfoResponseDto;
-import com.fizz.fizz_server.domain.comment.dto.response.CommentInfoWithChildCountResponseDto;
+import com.fizz.fizz_server.domain.comment.dto.response.CommentDetailResponseDto;
 import com.fizz.fizz_server.domain.comment.dto.response.CommentIsLikeResponseDto;
 import com.fizz.fizz_server.domain.comment.service.CommentService;
 import com.fizz.fizz_server.domain.user.domain.CustomUserPrincipal;
@@ -49,15 +48,15 @@ public class CommentController {
 
     // 해당 게시글의 모든 부모 댓글 조회
     @GetMapping("/post/{postId}")
-    public ResponseEntity<ResponseBody<List<CommentInfoWithChildCountResponseDto>>> getAllParentCommentsByPostId(@PathVariable Long postId){
-        List<CommentInfoWithChildCountResponseDto> responseDtos= commentService.getAllParentCommentsByPostId(postId);
+    public ResponseEntity<ResponseBody<List<CommentDetailResponseDto>>> getAllParentCommentsByPostId(@PathVariable Long postId){
+        List<CommentDetailResponseDto> responseDtos= commentService.getAllParentCommentsByPostId(postId);
         return ResponseEntity.status(HttpStatus.OK) .body(ResponseUtil.createSuccessResponse(responseDtos));
     }
 
     // 해당 댓글의 모든 대댓글 조회
     @GetMapping("/post/{commentId}/reply")
-    public ResponseEntity<ResponseBody<List<CommentInfoResponseDto>>> getAllChildCommentsByCommentId(@PathVariable Long commentId){
-        List<CommentInfoResponseDto> responseDtos= commentService.getAllChildCommentsByCommentId(commentId);
+    public ResponseEntity<ResponseBody<List<CommentDetailResponseDto>>> getAllChildCommentsByCommentId(@PathVariable Long commentId){
+        List<CommentDetailResponseDto> responseDtos= commentService.getAllChildCommentsByCommentId(commentId);
         return ResponseEntity.status(HttpStatus.OK) .body(ResponseUtil.createSuccessResponse(responseDtos));
     }
 
