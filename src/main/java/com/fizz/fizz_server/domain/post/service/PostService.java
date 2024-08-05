@@ -12,14 +12,12 @@ import com.fizz.fizz_server.domain.post.dto.response.PostInfo;
 import com.fizz.fizz_server.domain.post.repository.PostLikeRepository;
 import com.fizz.fizz_server.domain.post.repository.PostRepository;
 import com.fizz.fizz_server.domain.post.repository.ViewRepository;
-import com.fizz.fizz_server.domain.user.domain.CustomUserPrincipal;
 import com.fizz.fizz_server.domain.user.domain.User;
 import com.fizz.fizz_server.domain.user.repository.UserRepository;
 import com.fizz.fizz_server.global.base.response.exception.BusinessException;
 import com.fizz.fizz_server.global.base.response.exception.ExceptionType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -111,9 +109,9 @@ public class PostService {
             throw new BusinessException(ExceptionType.POST_USER_NOT_MATCHED);
         }
 
-        List<Participant> participants = participantRepository.findByUserAndChallenge(post.getUser(), post.getChallenge());
-        participantRepository.deleteAll(participants);
-        
+        Participant participant = participantRepository.findFirstByUserAndChallenge(post.getUser(), post.getChallenge())
+                .orElseThrow(() -> new BusinessException(PARTICIPANT_NOT_FOUND));
+        participantRepository.delete(participant);
         postRepository.delete(post);
     }
 

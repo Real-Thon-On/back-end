@@ -4,7 +4,9 @@ import com.fizz.fizz_server.domain.challenge.domain.Challenge;
 import com.fizz.fizz_server.domain.challenge.domain.Participant;
 import com.fizz.fizz_server.domain.user.domain.User;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -20,6 +22,6 @@ public interface ParticipantRepository  extends JpaRepository<Participant, Long>
     @Query("SELECT p.challenge FROM Participant p WHERE p.user = :user")
     List<Challenge> findByUser(User user);
 
-    List<Participant> findByUserAndChallenge(User user, Challenge challenge);
+    Optional<Participant> findFirstByUserAndChallenge(User user, Challenge challenge);
 
 }
