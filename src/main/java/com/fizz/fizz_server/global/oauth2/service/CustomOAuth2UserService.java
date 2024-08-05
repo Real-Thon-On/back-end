@@ -1,6 +1,5 @@
 package com.fizz.fizz_server.global.oauth2.service;
 
-import com.fizz.fizz_server.global.oauth2.exception.OAuth2AuthenticationProcessingException;
 import com.fizz.fizz_server.global.oauth2.user.info.OAuth2UserInfo;
 import com.fizz.fizz_server.global.oauth2.user.info.OAuth2UserInfoFatory;
 import lombok.extern.slf4j.Slf4j;
@@ -11,7 +10,6 @@ import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
 
 @Slf4j
 @Service
@@ -34,10 +32,6 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         String accessToken = userRequest.getAccessToken().getTokenValue();
 
         OAuth2UserInfo oAuth2UserInfo = OAuth2UserInfoFatory.getOAuth2UserInfo(registrationId, accessToken, oAuth2User.getAttributes());
-
-        if (!StringUtils.hasText(oAuth2UserInfo.getEmail())) {
-            throw new OAuth2AuthenticationProcessingException("Email not found from OAuth2 Provider");
-        }
 
         return new OAuth2UserPrincipal(oAuth2UserInfo);
     }
