@@ -24,4 +24,8 @@ public interface ParticipantRepository  extends JpaRepository<Participant, Long>
 
     Optional<Participant> findFirstByUserAndChallenge(User user, Challenge challenge);
 
+    @Query("select po.id from Post po JOIN Participant pa ON pa.challenge.id = po.challenge.id " +
+            "WHERE pa.user.id = :userId")
+    List<Long> findPostIdByUserChallenges(@Param("userId") Long userId);
+
 }

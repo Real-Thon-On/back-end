@@ -23,15 +23,6 @@ import static com.fizz.fizz_server.global.base.response.ResponseUtil.createSucce
 public class RecommendController {
     private final RecommendService recommendService;
 
-    // 추천 시스템의 성능이 느리기 때문에 그 동안 보여줄 게시물
-    @PostMapping("/pre-post")
-    public ResponseEntity<ResponseBody<Page<PostInfo>>> preRecommendPost(@AuthenticationPrincipal CustomUserPrincipal principal,
-                                                                     Pageable pageable) {
-        Page<PostInfo> response = recommendService.preRecommendPost(principal.getUserId(), pageable);
-        return ResponseEntity.ok(createSuccessResponse(response));
-    }
-
-    // 실제 사용자 맞춤 추천 게시물
     @PostMapping("/post")
     public ResponseEntity<ResponseBody<List<PostInfo>>> recommendPost(@AuthenticationPrincipal CustomUserPrincipal principal) {
         List<PostInfo> response = recommendService.recommendPost(principal.getUserId());
