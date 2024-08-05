@@ -10,7 +10,10 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.net.ContentHandler;
+import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 @Repository
 public interface PostLikeRepository extends JpaRepository<PostLike, Long> {
@@ -21,4 +24,13 @@ public interface PostLikeRepository extends JpaRepository<PostLike, Long> {
 
     @Query("SELECT pl.post FROM PostLike pl WHERE pl.user.id = :userId")
     Page<Post> findPostsByUserId(@Param("userId") Long userId, Pageable pageable);
+
+    @Query("SELECT pl.post.id FROM PostLike pl WHERE pl.user.id = :userId")
+    Page<Long> findByUserId(@Param("userId") Long userId, Pageable pageable);
+
+    @Query("SELECT DISTINCT pl.user.id FROM PostLike pl GROUP BY pl.user HAVING COUNT(pl.post) >= :minLikes")
+    List<Long> findUsersWithMinLikes(@Param("minLikes") int minLikes);
+
+    @Query("SELECT DISTINCT pl.post.id FROM PostLike pl WHERE pl.user.id = :user")
+    Set<Long> findPostsLikedByUsers(@Param("user") Long user);
 }

@@ -55,6 +55,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/api/user/**").hasRole("USER")
                         .requestMatchers(HttpMethod.PATCH, "/api/user/**").hasRole("USER")
                         .requestMatchers(HttpMethod.DELETE, "/api/user/**").hasRole("USER")
+                        .requestMatchers(HttpMethod.POST, "/api/recommend/**").hasRole("USER")
                         .requestMatchers(HttpMethod.POST, "/api/files/**").hasAnyRole("USER", "ADMIN")
                         .requestMatchers(HttpMethod.GET, "/api/notify/subscribe").hasRole("USER")
                         .requestMatchers(HttpMethod.POST, "/api/posts/**").hasAnyRole("USER", "ADMIN")
