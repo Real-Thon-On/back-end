@@ -20,13 +20,13 @@ public interface ChallengeRepository extends JpaRepository<Challenge, Long> {
     Optional<Challenge> findByTitle(String title);
 
     @Query("SELECT new com.fizz.fizz_server.domain.challenge.dto.response.ChallengeInfoResponseDto(" +
-            "c.id, cat.id, usr.id, c.title, c.description, c.isActive, CAST(COUNT(p.id) AS int)) " +
+            "c.id, cat.id, usr.id, c.title, c.description, c.isActive, CAST(COUNT(p.id) AS int), usr.profileId) " +
             "FROM Challenge c " +
             "LEFT JOIN c.category cat " +
             "LEFT JOIN c.creator usr " +
-            "LEFT JOIN Participant p ON c.id = p.challenge.id " +
+            "LEFT JOIN c.participants p " +
             "WHERE LOWER(c.title) LIKE LOWER(CONCAT('%', :keyword, '%')) " +
-            "GROUP BY c.id, cat.id, usr.id")
+            "GROUP BY c.id, cat.id, usr.id, c.title, c.description, c.isActive, usr.profileId")
     List<ChallengeInfoResponseDto> findByTitleWithParticipantCount(@Param("keyword") String keyword);
 
     @Modifying

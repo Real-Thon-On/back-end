@@ -18,6 +18,7 @@ public class ChallengeInfoResponseDto {
     private String description;
     private Boolean isActive;
     private Integer participantCounts;
+    private String profileId;
 
 
     public static ChallengeInfoResponseDto toDTO(Challenge challenge, Integer participantCounts){
@@ -29,6 +30,7 @@ public class ChallengeInfoResponseDto {
         dto.description = challenge.getDescription();
         dto.isActive =challenge.isActive();
         dto.participantCounts = participantCounts;
+        dto.profileId=challenge.getCreator().getProfileId();
         return dto;
     }
 
