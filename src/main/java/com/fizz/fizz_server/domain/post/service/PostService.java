@@ -111,6 +111,9 @@ public class PostService {
             throw new BusinessException(ExceptionType.POST_USER_NOT_MATCHED);
         }
 
+        List<Participant> participants = participantRepository.findByUserAndChallenge(post.getUser(), post.getChallenge());
+        participantRepository.deleteAll(participants);
+        
         postRepository.delete(post);
     }
 

@@ -46,10 +46,18 @@ public class ChallengeController {
 
     //챌린지명(title) 기반 챌린지 상세정보 조회
     @GetMapping("/info")
-    public ResponseEntity<ResponseBody<ChallengeInfoResponseDto>> getChallengeInfoByChallengeTitle(@Valid @RequestBody ChallengeInfoRequestDto requestDto){
-        ChallengeInfoResponseDto responseDto = challengeService.getChallengeInfoByChallengeTitle(requestDto.getTitle());
+    public ResponseEntity<ResponseBody<ChallengeInfoResponseDto>> getChallengeInfoByChallengeTitle(@RequestParam String title){
+        ChallengeInfoResponseDto responseDto = challengeService.getChallengeInfoByChallengeTitle(title);
         return ResponseEntity.status(HttpStatus.OK) .body(ResponseUtil.createSuccessResponse( responseDto ));
     }
+
+    //키워드 기반 챌린지 상세정보 목록 조회
+    @GetMapping("/search")
+    public ResponseEntity<ResponseBody<List<ChallengeInfoResponseDto>>> getChallengeInfos(@RequestParam String keyword ){
+        List<ChallengeInfoResponseDto> responseDto = challengeService.getChallengeInfos(keyword);
+        return ResponseEntity.status(HttpStatus.OK) .body(ResponseUtil.createSuccessResponse( responseDto ));
+    }
+
 
     //모든 잠든 챌린지 목록
     @GetMapping("/sleep")
