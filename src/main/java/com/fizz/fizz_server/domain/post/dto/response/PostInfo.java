@@ -26,7 +26,8 @@ public record PostInfo(
     public record UserInfo(
             Long id,
             String nickname,
-            String profileImage
+            String profileImage,
+            String profileId
     ) {
     }
 
@@ -51,7 +52,8 @@ public record PostInfo(
                 .userInfo(new UserInfo(
                         post.getUser().getId(),
                         post.getUser().getNickname(),
-                        post.getUser().getProfileImage()
+                        post.getUser().getProfileImage(),
+                        post.getUser().getProfileId()
                 ))
                 .challengeInfo(new ChallengeInfo(
                         post.getChallenge().getId(),
