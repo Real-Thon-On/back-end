@@ -20,8 +20,10 @@ public class CommentDetailResponseDto {
     private String nickname;
     private LocalDateTime createdAt;
     private String profileImage;
+    private String profileId;
 
-    public CommentDetailResponseDto(Long commentId, Long parentId, Long userId, String content, Integer likeCount, Long childCount, String nickname, LocalDateTime createdAt, String profileImage) {
+
+    public CommentDetailResponseDto(Long commentId, Long parentId, Long userId, String content, Integer likeCount, Long childCount, String nickname, LocalDateTime createdAt, String profileImage, String profileId) {
         this.commentId = commentId;
         this.parentId = parentId;
         this.userId = userId;
@@ -31,6 +33,7 @@ public class CommentDetailResponseDto {
         this.nickname = nickname;
         this.createdAt = createdAt;
         this.profileImage = profileImage;
+        this.profileId = profileId;
     }
 
 
@@ -45,6 +48,7 @@ public class CommentDetailResponseDto {
         dto.nickname = comment.getUser().getNickname();
         dto.createdAt = comment.getCreatedAt();
         dto.profileImage=comment.getUser().getProfileImage();
+        dto.profileId=comment.getUser().getProfileId();
         return dto;
     }
 }
