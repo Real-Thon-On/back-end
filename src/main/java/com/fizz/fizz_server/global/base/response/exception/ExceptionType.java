@@ -47,8 +47,10 @@ public enum ExceptionType {
     FILE_TOO_LARGE(PAYLOAD_TOO_LARGE, "F004", "파일 크기가 너무 큼."),
 
     // comment
-    NON_EXISTENT_COMMENT_ERROR(BAD_REQUEST,"C007","존재하지 않는 댓글")
+    NON_EXISTENT_COMMENT_ERROR(BAD_REQUEST,"C007","존재하지 않는 댓글"),
 
+    // participant
+    PARTICIPANT_NOT_FOUND(NOT_FOUND, "P001", "참여자가 존재하지 않음."),
     ;
 
 
