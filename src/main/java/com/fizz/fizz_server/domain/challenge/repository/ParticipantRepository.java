@@ -20,5 +20,6 @@ public interface ParticipantRepository  extends JpaRepository<Participant, Long>
     @Query("SELECT p.challenge FROM Participant p WHERE p.user = :user")
     List<Challenge> findByUser(User user);
 
+    List<Participant> findByUserAndChallenge(User user, Challenge challenge);
 
 }
