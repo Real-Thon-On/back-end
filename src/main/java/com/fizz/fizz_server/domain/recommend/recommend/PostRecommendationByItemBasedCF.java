@@ -5,6 +5,7 @@ import com.fizz.fizz_server.domain.recommend.dto.PostRecommendationInput;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Component
 public class PostRecommendationByItemBasedCF implements PostRecommendation {
@@ -23,11 +24,11 @@ public class PostRecommendationByItemBasedCF implements PostRecommendation {
         // 일정 시간마다 업데이트 해주는 로직일 경우 다음과 같이 초기화
         // Set<Long> likedItems = userData.getOrDefault(input.userId(), new HashSet<>());
 
-        Map<Long, Double> scores = new HashMap<>();
+        Map<Long, Double> scores = new ConcurrentHashMap<>();
 
         // 유사도를 기반으로 추천 점수 계산
         for (Long item : likedItems) {
-            for (Map.Entry<Long, Double> entry : itemSimilarity.getOrDefault(item, new HashMap<>()).entrySet()) {
+            for (Map.Entry<Long, Double> entry : itemSimilarity.getOrDefault(item, new ConcurrentHashMap<>()).entrySet()) {
                 Long otherItem = entry.getKey();
                 double similarity = entry.getValue();
                 if (!likedItems.contains(otherItem)) {
@@ -45,21 +46,21 @@ public class PostRecommendationByItemBasedCF implements PostRecommendation {
 
     public void init(Map<Long, Set<Long>> userItems) {
         userData = userItems;
-        itemSimilarity = new HashMap<>();
+        itemSimilarity = new ConcurrentHashMap<>();
 
         calculateItemSimilarities();
     }
 
     // 코사인 유사도를 계산하는 메서드
     private void calculateItemSimilarities() {
-        Map<Long, Integer> itemCount = new HashMap<>();
-        Map<Long, Map<Long, Integer>> coCount = new HashMap<>();
+        Map<Long, Integer> itemCount = new ConcurrentHashMap<>();
+        Map<Long, Map<Long, Integer>> coCount = new ConcurrentHashMap<>();
 
         // 아이템 간 공동 출현 횟수 계산
         for (Set<Long> items : userData.values()) {
             for (Long item : items) {
                 itemCount.put(item, itemCount.getOrDefault(item, 0) + 1);
-                coCount.putIfAbsent(item, new HashMap<>());
+                coCount.putIfAbsent(item, new ConcurrentHashMap<>());
 
                 for (Long otherItem : items) {
                     if (item.equals(otherItem)) continue;
@@ -70,7 +71,7 @@ public class PostRecommendationByItemBasedCF implements PostRecommendation {
 
         // 코사인 유사도 계산
         for (Long item : coCount.keySet()) {
-            itemSimilarity.putIfAbsent(item, new HashMap<>());
+            itemSimilarity.putIfAbsent(item, new ConcurrentHashMap<>());
             for (Long otherItem : coCount.get(item).keySet()) {
                 // 좋아요 여부를 백터로 표현할 때, 내적 -> 두 아이템의 동시 출현 횟수, norm(Euclidean) -> 각 아이템의 출현 횟수의 제곱근의 곱
                 double similarity = coCount.get(item).get(otherItem) / Math.sqrt(itemCount.get(item) * itemCount.get(otherItem));
