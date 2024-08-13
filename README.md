@@ -16,7 +16,8 @@
 - [Front Git](https://github.com/Fizz-challenge/Fizz_front)
 
 ## :hammer: 백엔드 아키텍처
-![image](https://github.com/user-attachments/assets/1aabda1c-812b-452c-89f3-2639db038f10)
+![image](https://github.com/user-attachments/assets/9bc754b5-980a-4156-8d13-7704c17a4662)
+
 
 
 ## :ok_woman: 팀원 소개
@@ -26,7 +27,7 @@
 | [<img src="https://avatars.githubusercontent.com/u/96743351?v=4" height=150 width=150> <br/> @kimgunwooo](https://github.com/kimgunwooo) | [<img src="https://avatars.githubusercontent.com/u/120279225?v=4" height=150 width=150> <br/> @jungbk0808](https://github.com/jungbk0808) | [<img src="https://avatars.githubusercontent.com/u/142137932?v=4" height=150 width=150> <br/> @jungjiyu](https://github.com/jungjiyu) | 
 | **파일 업로드 / 동영상 스트리밍** | **회원가입 / 추천 알고리즘** | **챌린지 / 카테고리 / 댓글 로직** |
 
-## Commit Convention
+## :construction: Commit Convention
 - add : 새로운 기능 추가
 - fix : 버그 수정
 - docs : 문서 수정
