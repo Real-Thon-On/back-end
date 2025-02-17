@@ -7,7 +7,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 
 
 @EnableSpringDataWebSupport(pageSerializationMode = EnableSpringDataWebSupport.PageSerializationMode.VIA_DTO)
-@EnableScheduling // 스케줄러 활성화
+@EnableScheduling
 @SpringBootApplication
 public class FizzApplication {
 

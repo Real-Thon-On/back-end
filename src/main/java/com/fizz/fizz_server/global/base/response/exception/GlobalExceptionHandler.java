@@ -34,24 +34,6 @@ public class GlobalExceptionHandler {
                 .body(ResponseUtil.createFailureResponse(ExceptionType.BINDING_ERROR, customMessage));
     }
 
-    @ExceptionHandler(DataIntegrityViolationException.class)
-    public ResponseEntity<ResponseBody<Void>> dataIntegrityViolationException(DataIntegrityViolationException e) {
-        log.error("DataIntegrityViolationException: {}", e.getMessage());
-        return ResponseEntity
-                .status(HttpStatus.CONFLICT)
-                .body(ResponseUtil.createFailureResponse(ExceptionType.DUPLICATE_VALUE_ERROR));
-    }
-
-    @ExceptionHandler(MaxUploadSizeExceededException.class)
-    protected ResponseEntity<ResponseBody<Void>> handleMaxUploadSizeExceededException(
-            MaxUploadSizeExceededException e) {
-        log.info("handleMaxUploadSizeExceededException : {}", e.getMessage());
-
-        return ResponseEntity
-                .status(ExceptionType.FILE_TOO_LARGE.getStatus())
-                .body(createFailureResponse(ExceptionType.FILE_TOO_LARGE));
-    }
-
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ResponseBody<Void>> exception(Exception e) {
         log.error("Exception Message : {} ", e.getMessage());
