@@ -4,7 +4,7 @@ package com.fizz.fizz_server.user.controller;
 
 import com.fizz.fizz_server.global.base.response.ResponseBody;
 import com.fizz.fizz_server.global.base.response.ResponseUtil;
-import com.fizz.fizz_server.security.util.CustomUserDetails;
+import com.fizz.fizz_server.security.jwt.principal.CustomUserDetails;
 import com.fizz.fizz_server.user.dto.request.UserRequestDto;
 import com.fizz.fizz_server.user.dto.response.UserResponseDto;
 import com.fizz.fizz_server.user.service.UserService;

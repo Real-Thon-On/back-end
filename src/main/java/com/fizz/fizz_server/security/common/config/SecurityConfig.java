@@ -1,8 +1,8 @@
-package com.fizz.fizz_server.security.config;
+package com.fizz.fizz_server.security.common.config;
 
-import com.fizz.fizz_server.security.filter.JwtAuthenticationFilter;
-import com.fizz.fizz_server.security.service.CustomUserDetailsService;
-import com.fizz.fizz_server.security.util.JwtTokenProvider;
+import com.fizz.fizz_server.security.jwt.filter.JwtAuthenticationFilter;
+import com.fizz.fizz_server.security.jwt.service.CustomUserDetailsService;
+import com.fizz.fizz_server.security.jwt.util.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -23,6 +23,10 @@ public class SecurityConfig {
 
     private final JwtTokenProvider jwtTokenProvider;
     private final CustomUserDetailsService customUserDetailsService;
+
+    private final CustomOAuth2UserService customOAuth2UserService;
+    private final OAuth2SuccessHandler oAuth2SuccessHandler;
+    private final OAuth2FailureHandler oAuth2FailureHandler;
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -48,7 +52,17 @@ public class SecurityConfig {
                         .requestMatchers("/api/user/signup","/api/user/login").permitAll()         // 로그인, 회원가입
                         .requestMatchers("/api/user/**", "/api/memo/**").authenticated()
                         .anyRequest().permitAll()
-                ).addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider, customUserDetailsService), UsernamePasswordAuthenticationFilter.class);  // JWT 인증 필터 추가;
+                )
+
+                // oauth2 설정
+                .oauth2Login(oauth -> oauth
+                        .userInfoEndpoint(c -> c.userService(customOAuth2UserService)) // 사용자 정보를 어디서 load 할지 설정
+                        .successHandler(oAuth2SuccessHandler) // 로그인 성공 시 핸들러
+                        .failureHandler(oAuth2FailureHandler) // 로그인 실패 시 핸들러
+                )
+
+                // jwt 설정
+                .addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider, customUserDetailsService), UsernamePasswordAuthenticationFilter.class);  // JWT 인증 필터 추가;
 
         return http.build();
     }

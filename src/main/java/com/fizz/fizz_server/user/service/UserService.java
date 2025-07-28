@@ -2,7 +2,7 @@ package com.fizz.fizz_server.user.service;
 
 import com.fizz.fizz_server.global.base.response.exception.BusinessException;
 import com.fizz.fizz_server.global.base.response.exception.ExceptionType;
-import com.fizz.fizz_server.security.util.JwtTokenProvider;
+import com.fizz.fizz_server.security.jwt.util.JwtTokenProvider;
 import com.fizz.fizz_server.user.entity.User;
 import com.fizz.fizz_server.user.dto.request.UserRequestDto;
 import com.fizz.fizz_server.user.dto.response.UserResponseDto;

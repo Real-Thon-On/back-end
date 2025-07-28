@@ -1,4 +1,4 @@
-package com.fizz.fizz_server.security.util;
+package com.fizz.fizz_server.security.jwt.util;
 
 
 import io.jsonwebtoken.Claims;

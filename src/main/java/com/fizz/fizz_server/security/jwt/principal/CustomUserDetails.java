@@ -1,4 +1,4 @@
-package com.fizz.fizz_server.security.util;
+package com.fizz.fizz_server.security.jwt.principal;
 
 
 import com.fizz.fizz_server.user.entity.User;
@@ -25,7 +25,7 @@ public class CustomUserDetails implements UserDetails {
         this.id = user.getId();
         this.username = user.getUsername();
         this.password = user.getPassword();
-        this.authorities = Collections.singletonList(new SimpleGrantedAuthority("ROLE_USER"));
+        this.authorities = Collections.singletonList(new SimpleGrantedAuthority(user.getRole().getKey()));
     }
 
 

@@ -1,10 +1,10 @@
-package com.fizz.fizz_server.security.filter;
+package com.fizz.fizz_server.security.jwt.filter;
 
 
 
-import com.fizz.fizz_server.security.service.CustomUserDetailsService;
-import com.fizz.fizz_server.security.util.CustomUserDetails;
-import com.fizz.fizz_server.security.util.JwtTokenProvider;
+import com.fizz.fizz_server.security.jwt.service.CustomUserDetailsService;
+import com.fizz.fizz_server.security.jwt.principal.CustomUserDetails;
+import com.fizz.fizz_server.security.jwt.util.JwtTokenProvider;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;

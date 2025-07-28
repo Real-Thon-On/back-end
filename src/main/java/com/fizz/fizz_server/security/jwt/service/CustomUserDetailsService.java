@@ -1,9 +1,9 @@
-package com.fizz.fizz_server.security.service;
+package com.fizz.fizz_server.security.jwt.service;
 
 
 
 
-import com.fizz.fizz_server.security.util.CustomUserDetails;
+import com.fizz.fizz_server.security.jwt.principal.CustomUserDetails;
 import com.fizz.fizz_server.user.entity.User;
 import com.fizz.fizz_server.user.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
