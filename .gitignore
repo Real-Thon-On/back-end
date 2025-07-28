@@ -37,8 +37,7 @@ out/
 .vscode/
 
 # 설정 파일
-application.properties
-application.yml
+
 data
 .env
 

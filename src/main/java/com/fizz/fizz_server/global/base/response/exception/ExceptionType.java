@@ -19,43 +19,17 @@ public enum ExceptionType {
 
     // user
     USER_NOT_FOUND(NOT_FOUND, "U001", "존재하지 않는 사용자"),
-    DUPLICATED_PROFILE_ID(CONFLICT, "U002", "중복 프로필 아이디"),
-    DUPLICATED_EMAIL(CONFLICT, "U003", "중복 이메일"),
+    DUPLICATED_USER_ID(CONFLICT, "U002", "중복 아이디(PK)"),
+    DUPLICATED_USERNAME(CONFLICT, "U003", "중복 아이디(username)"),
     FORBIDDEN(HttpStatus.FORBIDDEN, "U004", "권한이 없음"),
     UN_AUTHENTICATION(UNAUTHORIZED, "U005", "인증이 필요함"),
-    ALREADY_FOLLOW(BAD_REQUEST, "U006", "이미 팔로우한 사용자입니다."),
-    SELF_FOLLOW(BAD_REQUEST, "U007", "자기 자신은 팔로우할 수 없습니다."),
-    FOLLOW_NOT_FOUND(BAD_REQUEST, "U007", "팔로우를 하지 않은 사용자입니다."),
 
-    // challenge
-    NON_EXISTENT_CHALLENGE_ERROR(BAD_REQUEST,"CH001","존재하지 않는 챌린지"),
+    //store
+    STORE_NOT_FOUND(NOT_FOUND, "S001", "존재하지 않는 가게")
 
-
-    // category
-    NON_EXISTENT_CATEGORY_ERROR(BAD_REQUEST,"CA002","존재하지 않는 카테고리"),
-
-    // post
-    POST_NOT_FOUND(NOT_FOUND, "P001", "존재하지 않는 게시글"),
-    POST_USER_NOT_MATCHED(BAD_REQUEST, "P002", "해당 게시글의 사용자가 아님"),
-    ALREADY_LIKED(BAD_REQUEST, "P003", "이미 좋아요 누른 게시글입니다."),
-    NOT_LIKED(BAD_REQUEST, "P004", "좋아요를 누르지 않은 게시글입니다."),
-
-    // file
-    FILE_NOT_FOUND(NOT_FOUND, "F001", "파일이 존재하지 않음."),
-    FILENAME_NOT_FOUND(NOT_FOUND, "F002", "파일의 이름이 존재하지 않음."),
-    FAIL_FILE_UPLOAD(NOT_FOUND, "F003", "파일 업로드에 실패."),
-    FILE_TOO_LARGE(PAYLOAD_TOO_LARGE, "F004", "파일 크기가 너무 큼."),
-
-    // comment
-    NON_EXISTENT_COMMENT_ERROR(BAD_REQUEST,"C007","존재하지 않는 댓글"),
-
-    // participant
-    PARTICIPANT_NOT_FOUND(NOT_FOUND, "P001", "참여자가 존재하지 않음."),
     ;
 
 
     private final HttpStatus status;
     private final String code;
-    private final String message;
-
-}
+    private final String message;}
