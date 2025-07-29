@@ -1,23 +1,19 @@
-package com.fizz.fizz_server.security.oauth2.info;
+package com.fizz.fizz_server.security.oauth2.dto;
+
 
 import com.fizz.fizz_server.security.oauth2.enums.ProviderType;
-import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.Map;
-
 @Getter
 @Setter
-@AllArgsConstructor
 @Builder
-public abstract class OAuth2UserInfo {
+public class ProviderInfoDto {
 
     private final ProviderType providerType; // provider 벤더명
     private final String userNameAttribute;  // 해당 provider 상의 식별자 키명
     private final String identifier;  // 해당 provider 상의 식별자 값
 
-    private Map<String, Object> attributes;
 
 }

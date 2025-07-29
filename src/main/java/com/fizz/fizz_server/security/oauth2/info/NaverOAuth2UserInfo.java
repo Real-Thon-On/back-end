@@ -2,19 +2,17 @@ package com.fizz.fizz_server.security.oauth2.info;
 
 
 
-import com.fizz.fizz_server.security.common.enums.ProviderInfo;
-
 import java.util.Map;
 
 public class NaverOAuth2UserInfo extends OAuth2UserInfo {
 
     public NaverOAuth2UserInfo(Map<String, Object> attributes) {
-        super((Map<String, Object>) attributes.get(ProviderInfo.NAVER.getAttributeKey()));
+        super(attributes);
     }
 
     @Override
-    public String getProviderCode() {
-        return (String) attributes.get(ProviderInfo.NAVER.getProviderCode());
+    public String getUserNameAttribute() {
+        return (String) attributes.get(ProviderInfo.NAVER.getUserNameAttribute());
     }
 
     @Override

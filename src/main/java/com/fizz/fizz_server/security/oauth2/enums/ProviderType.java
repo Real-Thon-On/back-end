@@ -1,4 +1,4 @@
-package com.fizz.fizz_server.security.common.enums;
+package com.fizz.fizz_server.security.oauth2.enums;
 
 import java.util.Arrays;
 
@@ -15,4 +15,6 @@ public enum ProviderType {
                 .findFirst()
                 .orElseThrow();
     }
+
+
 }

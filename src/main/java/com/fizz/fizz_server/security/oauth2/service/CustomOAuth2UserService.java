@@ -3,8 +3,8 @@ package com.fizz.fizz_server.security.oauth2.service;
 
 
 
-import com.fizz.fizz_server.security.common.enums.ProviderInfo;
 import com.fizz.fizz_server.security.common.enums.Role;
+import com.fizz.fizz_server.security.oauth2.enums.ProviderType;
 import com.fizz.fizz_server.security.oauth2.info.OAuth2UserInfo;
 import com.fizz.fizz_server.security.oauth2.info.OAuth2UserInfoFactory;
 import com.fizz.fizz_server.security.oauth2.principal.UserPrincipal;
@@ -40,17 +40,20 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
         String userNameAttributeName = userRequest.getClientRegistration().getProviderDetails().getUserInfoEndpoint()
                 .getUserNameAttributeName();
 
-        // 서비스를 구분하는 코드 ex) Github, Naver
-        String providerCode = userRequest.getClientRegistration().getRegistrationId();
+        /**
+         * userRequest에서 registrationId 추출 후 registrationId으로 SocialType 저장
+         * http://localhost:8080/oauth2/authorization/kakao에서 kakao가 registrationId
+         * registrationId 를 enum 값화
+         */
+        String registrationId = userRequest.getClientRegistration().getRegistrationId();
+        ProviderType providerType = ProviderType.from(registrationId);
 
-        // 어떤 소셜로그인을 사용했는지 반환받는 정적 메서드
-        ProviderInfo providerInfo = ProviderInfo.from(providerCode);
 
         // 소셜쪽에서 전달받은 값들을 Map 형태로 받음
         Map<String, Object> attributes = oAuth2User.getAttributes();
 
         // userNameAttributeName 키의 값. 즉, 식별자값.
-        OAuth2UserInfo oAuth2UserInfo = OAuth2UserInfoFactory.getOAuth2UserInfo(providerInfo, attributes);
+        OAuth2UserInfo oAuth2UserInfo = OAuth2UserInfoFactory.getOAuth2UserInfo(providerType, attributes);
         String userIdentifier = oAuth2UserInfo.getUserIdentifier();
 
         User user = getUser(userIdentifier, providerInfo);
@@ -63,14 +66,14 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
                 .build();
     }
 
-    private User getUser(String userIdentifier, ProviderInfo providerInfo) {
-        Optional<User> optionalUser = userRepository.findByOAuthInfo(userIdentifier, providerInfo);
+    private User getUser(String userIdentifier, ProviderType providerType) {
+        Optional<User> optionalUser = userRepository.findByOAuthInfo(userIdentifier, providerType);
 
         if (optionalUser.isEmpty()) {
             User unregisteredUser = User.builder()
                     .identifier(userIdentifier)
                     .role(Role.NOT_REGISTERED)
-                    .providerInfo(providerInfo)
+                    .providerInfo(providerType)
                     .build();
             return userRepository.save(unregisteredUser);
         }

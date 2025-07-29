@@ -1,7 +1,6 @@
 package com.fizz.fizz_server.security.oauth2.info;
 
 
-import com.fizz.fizz_server.security.common.enums.ProviderInfo;
 
 import java.util.Map;
 
@@ -12,8 +11,8 @@ public class GoogleOAuth2UserInfo extends OAuth2UserInfo {
     }
 
     @Override
-    public String getProviderCode() {
-        return (String) attributes.get(ProviderInfo.GOOGLE.getProviderCode());
+    public String getUserNameAttribute() {
+        return (String) attributes.get(ProviderInfo.GOOGLE.getUserNameAttribute());
     }
 
     @Override
