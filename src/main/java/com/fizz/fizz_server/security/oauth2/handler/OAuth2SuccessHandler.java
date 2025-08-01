@@ -5,7 +5,6 @@ import com.fizz.fizz_server.security.jwt.dto.response.TokenResponseDto;
 import com.fizz.fizz_server.security.jwt.service.AuthService;
 import com.fizz.fizz_server.security.oauth2.principal.PrincipalDetails;
 import com.fizz.fizz_server.user.entity.User;
-import com.fizz.fizz_server.user.repository.UserRepository;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -31,8 +30,7 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
     @Value("${oauth2.url.path.auth}")
     private String AUTH_PATH;
 
-    private final UserRepository userRepository;
-    private final AuthService tokenService;
+    private final AuthService authService;
 
 
     @Override
@@ -43,8 +41,13 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
 
         User user = principalDetails.getUser();
 
-        // 디바이스 정보 추출
-        String deviceId = request.getHeader("Device-Id"); // 커스텀
+        /*  */
+        /**
+         * 디바이스 정보 추출
+         * 디바이스 정보는 프론트에서 발급 및 localstorage 에 넣어줘야된다
+         * 넘겨주지 않으면 걍 null 값 나오고, 그렇다고 해서 백엔드 상 딱히 에러가 나오게 구현하진 않았다. ( 신원 미상 처리 함 )
+         */
+        String deviceId = request.getHeader("Device-Id");
 
         String redirectUrl = getRedirectUrlByRole(user, deviceId);
 
@@ -58,6 +61,7 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
 
         /**
          * 회원가입 되지 않은 사용자는 별도의 token 발급 안함
+         * 여기까지 왔는데 회원가입 되지 않았다의 의미 : provider 상에 등록 완료됬고, 우리 db에 저장까지 됬는데 추가적인 부가정보를 입력하지 않아 우리 애플리케이션 상에서 최종 회원가입 완료는 안된 상태
          */
         if (role == Role.NOT_REGISTERED) {
             return UriComponentsBuilder
@@ -70,7 +74,7 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         /**
          * 회원가입된 사용자에 대해선 access token 과 refresh token 을 함께 발급
          */
-        TokenResponseDto tokenDto = tokenService.issueTokensFor(user, deviceId);
+        TokenResponseDto tokenDto = authService.issueTokensFor(user, deviceId);
 
 
         return UriComponentsBuilder

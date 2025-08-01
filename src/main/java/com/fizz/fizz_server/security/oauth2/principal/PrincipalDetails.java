@@ -39,7 +39,7 @@ public class PrincipalDetails implements OAuth2User, UserDetails {
 
     @Override
     public String getName() {
-        return user.getProviderId();  // provider 상의 식별자를 반환하도록 설정
+        return user.getId() != null ? user.getId().toString() : "anonymous_name";
     }
 
 
@@ -55,7 +55,7 @@ public class PrincipalDetails implements OAuth2User, UserDetails {
 
     @Override
     public String getUsername() {
-        return user.getUsername();
+        return user.getUsername() != null ? user.getUsername()  : "anonymous_username";
     }
 
     @Override public boolean isAccountNonExpired() { return true; }

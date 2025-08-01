@@ -14,9 +14,9 @@ public interface UserRepository extends JpaRepository<User, Long> {
     Optional<User> findByUsername(String username);
 
     //OAuth 정보( provider 벤더명과 해당 provider 상의 식별자값 ) 기준으로 사용자 찾기
-    @Query("select u from User u where u.providerType = :providerType and u.identifier = :identifier " )
+    @Query("select u from User u where u.providerType = :providerType and u.providerId = :providerId " )
     Optional<User> findByOAuthInfo(@Param("providerType") ProviderType providerType,
-                                   @Param("identifier") String identifier);
+                                   @Param("providerId") String providerId);
 
 
 

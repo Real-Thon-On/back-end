@@ -61,7 +61,7 @@ public class AuthService {
 
         refreshTokenRepository.findByUserIdAndDeviceId(
                         user.getId(),
-                        deviceId // 기기 식별자가 없는 로그인은 1개만 허용
+                        deviceId // 기기 식별자가 없는 로그인은 1개만 허용 : null 값도 값이기 때문
                 )
 
                 .map( existing -> {

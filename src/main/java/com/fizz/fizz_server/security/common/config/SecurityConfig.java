@@ -26,21 +26,17 @@ public class SecurityConfig {
 
     private final JwtTokenProvider jwtTokenProvider;
     private final CustomUserDetailsService customUserDetailsService;
-
     private final CustomOAuth2UserService customOAuth2UserService;
     private final OAuth2SuccessHandler oAuth2SuccessHandler;
     private final OAuth2FailureHandler oAuth2FailureHandler;
 
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();  // 비밀번호 암호화에 BCryptPasswordEncoder 사용
-    }
+//    @Bean
+//    public PasswordEncoder passwordEncoder() {
+//        return new BCryptPasswordEncoder();  // 비밀번호 암호화에 BCryptPasswordEncoder 사용
+//    }
 
 
-    @Bean
-    public UserDetailsService userDetailsService() {
-        return customUserDetailsService;  // 사용자 세부 정보를 CustomUserDetailsService로 설정
-    }
+
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -52,8 +48,7 @@ public class SecurityConfig {
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/user/signup","/api/user/login").permitAll()         // 로그인, 회원가입
-                        .requestMatchers("/api/user/**", "/api/memo/**").authenticated()
+                        .requestMatchers("/api/auth/**","/api/user/sign-up").permitAll()         // 로그인, 회원가입
                         .anyRequest().permitAll()
                 )
 

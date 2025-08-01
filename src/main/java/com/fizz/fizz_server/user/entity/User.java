@@ -46,14 +46,15 @@ public class User extends BaseEntity {
      * 자체로그인 논리적 식별자값
      * OAuth2 로그인일경우 null
      */
-    @Column(nullable = false, unique = true)
+    @Column(
+            unique = true)
     private String username;
 
     /**
      * 자체로그인 비밀번호
      * OAuth2 로그인일경우 null
      */
-    @Column(nullable = false)
+    @Column
     private String password;
 
     @Enumerated(EnumType.STRING)

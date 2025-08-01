@@ -18,6 +18,11 @@ public class UserController {
 
     private final UserService userService;
 
+    /**
+     * 자체 회원 가입 API
+     * @param requestDto
+     * @return
+     */
     @PostMapping("/sign-up")
     public ResponseEntity<ResponseBody<UserResponseDto>> signup(@RequestBody SignUpRequestDto requestDto) {
         UserResponseDto responseDto = userService.signup(requestDto);

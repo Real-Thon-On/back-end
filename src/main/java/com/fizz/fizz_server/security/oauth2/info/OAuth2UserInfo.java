@@ -14,7 +14,7 @@ import java.util.Map;
 @Getter
 @AllArgsConstructor
 @Builder
-public abstract class OAuth2UserInfo {
+public class OAuth2UserInfo {
 
     public final ProviderType providerType; // provider 벤더명
 
