@@ -3,8 +3,8 @@ package com.fizz.fizz_server.security.jwt.filter;
 
 
 import com.fizz.fizz_server.security.jwt.service.CustomUserDetailsService;
-import com.fizz.fizz_server.security.jwt.principal.CustomUserDetails;
 import com.fizz.fizz_server.security.jwt.util.JwtTokenProvider;
+import com.fizz.fizz_server.security.oauth2.principal.PrincipalDetails;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -30,23 +30,22 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
             throws ServletException, IOException {
 
-        String token = extractToken(request);  // JWT 토큰 추출
+        String token = JwtTokenProvider.extractToken(request.getHeader("Authorization"));  // JWT 토큰 추출
 
-        log.info("token: {}",token);
+        log.debug("[JwtAuthenticationFilter] token: {}", token);
 
-        if (token != null && !jwtTokenProvider.isTokenExpired(token)) {
-            String username = jwtTokenProvider.extractUsername(token);  // JWT에서 사용자명 추출
+        // 토큰이 존재하고 유효한 경우
+        if (token != null && jwtTokenProvider.isValidToken(token)) {
+            Long id =jwtTokenProvider.extractId(token);  // JWT에서 사용자명 추출
 
-            log.info("username: {}",username);
+            log.debug("[JwtAuthenticationFilter] userId from token: {}", id);
 
-            // UserDetailsService를 통해 사용자 정보 로드
-            CustomUserDetails userDetails = (CustomUserDetails) customUserDetailsService.loadUserByUsername(username);
+            // UserDetailsService 를 통해 사용자 정보 로드
+            PrincipalDetails userDetails = (PrincipalDetails) customUserDetailsService.loadUserById(id);
 
             // 인증 객체 생성 및 SecurityContext에 설정
             UsernamePasswordAuthenticationToken authentication =
-                    new UsernamePasswordAuthenticationToken(userDetails, "", userDetails.getAuthorities());
-
-            log.info("userDetails.getAuthorities(): {}", userDetails.getAuthorities());
+                    new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
 
             SecurityContextHolder.getContext().setAuthentication(authentication);
         }
@@ -54,11 +53,5 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         chain.doFilter(request, response);
     }
 
-    private String extractToken(HttpServletRequest request) {
-        String header = request.getHeader("Authorization");
-        if (header != null && header.startsWith("Bearer ")) {
-            return header.substring(7);  // "Bearer "를 제외한 토큰 값 반환
-        }
-        return null;
-    }
+
 }

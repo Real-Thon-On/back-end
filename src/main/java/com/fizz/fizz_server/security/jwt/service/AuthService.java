@@ -1,0 +1,148 @@
+package com.fizz.fizz_server.security.jwt.service;
+
+import com.fizz.fizz_server.global.base.response.exception.BusinessException;
+import com.fizz.fizz_server.global.base.response.exception.ExceptionType;
+import com.fizz.fizz_server.security.jwt.dto.request.UsernameLoginRequestDto;
+import com.fizz.fizz_server.security.jwt.dto.response.TokenResponseDto;
+import com.fizz.fizz_server.security.jwt.entity.RefreshToken;
+import com.fizz.fizz_server.security.jwt.repository.RefreshTokenRepository;
+import com.fizz.fizz_server.security.jwt.util.JwtTokenProvider;
+import com.fizz.fizz_server.user.entity.User;
+import com.fizz.fizz_server.user.repository.UserRepository;
+import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDateTime;
+
+@Transactional
+@Service
+@RequiredArgsConstructor
+public class AuthService {
+
+
+    private final UserRepository userRepository;
+    private final RefreshTokenRepository refreshTokenRepository;
+    private final JwtTokenProvider jwtTokenProvider;
+    private final PasswordEncoder passwordEncoder;
+
+    public TokenResponseDto usernameLogin(UsernameLoginRequestDto request) {
+
+        /**
+         * 유효한 username, pw 을 통한 로그인인지 확인
+         * access token 과 refresh token 신규 발급
+         * db 상 해당 유저와 해당 기기에 대한 기존 리프레시 토큰 존재 여부 확인 및 업데이트/새로 생성
+         */
+        User user = userRepository.findByUsername(request.getUsername())
+                .orElseThrow(() -> new BusinessException(ExceptionType.USER_NOT_FOUND));
+
+        // db 에 이미 암호화된 형태로 저장되있기에 request 에 담긴 비밀번호를 암호화 하여 비교 수행
+        if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
+            throw new BusinessException(ExceptionType.PASSWORD_NOT_MATCHED);
+        }
+
+
+
+        return issueTokensFor(user, request.getDeviceId());
+    }
+
+
+
+    public TokenResponseDto issueTokensFor(User user, String deviceId) {
+
+
+        // access token 과 refresh token (재)발급
+        String newAccessToken = jwtTokenProvider.generateAccessToken(user.getId());
+        String newRefreshToken = jwtTokenProvider.generateRefreshToken(user.getId());
+        LocalDateTime expiresAt = jwtTokenProvider.extractExpiration(newRefreshToken);
+
+
+
+        refreshTokenRepository.findByUserIdAndDeviceId(
+                        user.getId(),
+                        deviceId // 기기 식별자가 없는 로그인은 1개만 허용
+                )
+
+                .map( existing -> {
+                    existing.update(newRefreshToken, expiresAt); // 더티 채킹으로 업데이트 시 자동 저장됨
+                    return existing;})
+                .orElseGet(() -> {
+                    RefreshToken refreshToken
+                            =  RefreshToken.builder()
+                            .token(newRefreshToken)
+                            .user(user)
+                            .expiresAt(expiresAt)
+                            .deviceId(deviceId)
+                            .build();
+                    // 새로 저장
+                    return refreshTokenRepository.save(refreshToken);
+
+                });
+
+
+
+        return TokenResponseDto.builder()
+                .access(newAccessToken)
+                .refresh(newRefreshToken)
+                .build();
+    }
+
+    /**
+     * refresh token 을 활용해  access token 신규 발급
+     * rtr 전략을 활용해  refresh token도 신규 발급, 기존 refresh token 은 폐기
+     */
+    public TokenResponseDto reissueTokens(String bearerToken) {
+        String refreshToken = JwtTokenProvider.extractToken(bearerToken);
+
+        RefreshToken token = validateAndGetRefreshToken(refreshToken);
+
+        User user = token.getUser();
+        String newAccessToken = jwtTokenProvider.generateAccessToken(user.getId());
+        String newRefreshToken = jwtTokenProvider.generateRefreshToken(user.getId());
+
+        LocalDateTime newExpiry = jwtTokenProvider.extractExpiration(newRefreshToken);
+
+        // 기존 토큰 업데이트
+        token.update(newRefreshToken, newExpiry);
+        refreshTokenRepository.save(token);
+
+        return TokenResponseDto.builder()
+                .access(newAccessToken)
+                .refresh(newRefreshToken)
+                .build();
+    }
+
+    /** 단일 로그아웃 */
+    public void logout(String bearerToken) {
+        String refreshToken = JwtTokenProvider.extractToken(bearerToken);
+        refreshTokenRepository.findByToken(refreshToken)
+                .ifPresent(refreshTokenRepository::delete);
+    }
+
+    /** 전체 로그아웃 */
+    public void logoutAll(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new BusinessException(ExceptionType.USER_NOT_FOUND));
+        refreshTokenRepository.deleteAllByUserId(user.getId());
+    }
+
+
+
+    private RefreshToken validateAndGetRefreshToken(String refreshToken){
+
+        // 유효한 jwt token 인지 1차 검사
+        if (!jwtTokenProvider.isValidToken(refreshToken)) {
+            throw new BusinessException(ExceptionType.INVALID_REFRESH_TOKEN);
+        }
+
+        // db 상 유효한지 2차 검사
+        RefreshToken token = refreshTokenRepository.findByToken(refreshToken)
+                .filter(rt -> !rt.isExpired())
+                .orElseThrow(() -> new BusinessException(ExceptionType.REFRESH_TOKEN_EXPIRED));
+
+        return token;
+
+    }
+
+}

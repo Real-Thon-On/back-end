@@ -1,16 +1,22 @@
 package com.fizz.fizz_server.security.jwt.util;
 
 
+import com.fizz.fizz_server.user.entity.User;
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
 import java.security.Key;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.Date;
+
 
 @Component
 public class JwtTokenProvider {
@@ -18,8 +24,13 @@ public class JwtTokenProvider {
     @Value("${jwt.secret}")
     private String secretKey;
 
-    @Value("${jwt.expiration}")
-    private long expirationTime;
+    @Value("${jwt.expiration.access}")
+    private long accessTokenExpiration;
+
+    @Value("${jwt.expiration.refresh}")
+    private long refreshTokenExpiration;
+
+
 
 
     // string key 기반 key 객체 생성
@@ -28,38 +39,72 @@ public class JwtTokenProvider {
     }
 
 
-    // JWT 생성
-    public String generateToken(String username) {
+    // AccessToken 생성
+    public String generateAccessToken(Long userId) {
         Date now = new Date();
-        Date expiryDate = new Date(now.getTime() + expirationTime);
-        Key key = getSigningKey();
+        Date expiry = new Date(now.getTime() + accessTokenExpiration);
         return Jwts.builder()
-                .subject(username)
+                .subject(String.valueOf(userId))
                 .issuedAt(now)
-                .expiration(expiryDate)
-                .signWith(key)
+                .expiration(expiry)
+                .signWith(getSigningKey())
                 .compact();
-
     }
 
-    // JWT에서 사용자명 추출
-    public String extractUsername(String token) {
+    // RefreshToken 생성
+    public String generateRefreshToken(Long userId) {
+        Date now = new Date();
+        Date expiry = new Date(now.getTime() + refreshTokenExpiration);
+        return Jwts.builder()
+                .subject(String.valueOf(userId))
+                .issuedAt(now)
+                .expiration(expiry)
+                .signWith(getSigningKey())
+                .compact();
+    }
+
+
+
+    public static String extractToken(String bearerToken) {
+        return bearerToken != null && bearerToken.toLowerCase().startsWith("bearer ")
+                ? bearerToken.substring(7)
+                : null;
+    }
+
+    // claims 파서
+    private Claims parseClaims(String token) {
         return Jwts.parser()
                 .verifyWith(getSigningKey())
                 .build()
-                .parseSignedClaims(token)
-                .getPayload()
-                .getSubject();
-    }
-
-    // JWT가 만료되었는지 확인
-    public boolean isTokenExpired(String token) {
-        Claims claims = Jwts.parser()
-                .verifyWith(getSigningKey())
-                .build()
-                .parseSignedClaims(token)
+                .parseSignedClaims(token) // 유효성 검증 및 파싱
                 .getPayload();
-
-        return claims.getExpiration().before(new Date());
     }
+
+    public boolean isValidToken(String token) {
+        try {
+            parseClaims(token); // 성공 시 유효
+            return true;
+        } catch (JwtException | IllegalArgumentException e) {
+            return false;
+        }
+    }
+    /**
+     * claim 에서 특정 정보 추출하는 메서드들
+     * @param token
+     */
+    public Long extractId(String token) { return Long.parseLong(parseClaims(token).getSubject()); }
+
+    public LocalDateTime extractExpiration(String token) {
+        Date expiration = parseClaims(token).getExpiration();
+        return expiration.toInstant()
+                .atZone(ZoneId.systemDefault())
+                .toLocalDateTime();
+    }
+
+
+
+
+
+
+
 }

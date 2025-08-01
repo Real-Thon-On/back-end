@@ -7,14 +7,13 @@ import com.fizz.fizz_server.security.common.enums.Role;
 import com.fizz.fizz_server.security.oauth2.enums.ProviderType;
 import com.fizz.fizz_server.security.oauth2.info.OAuth2UserInfo;
 import com.fizz.fizz_server.security.oauth2.info.OAuth2UserInfoFactory;
-import com.fizz.fizz_server.security.oauth2.principal.UserPrincipal;
+import com.fizz.fizz_server.security.oauth2.principal.PrincipalDetails;
 import com.fizz.fizz_server.user.entity.User;
 import com.fizz.fizz_server.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
-import org.springframework.security.oauth2.client.userinfo.OAuth2UserService;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
@@ -26,57 +25,64 @@ import java.util.Optional;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequest, OAuth2User> {
+public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
     private final UserRepository userRepository;
 
     @Override
     @Transactional
-    public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
-        OAuth2UserService<OAuth2UserRequest, OAuth2User> delegate = new DefaultOAuth2UserService();
-        OAuth2User oAuth2User = delegate.loadUser(userRequest);
+    public OAuth2User loadUser(
+            OAuth2UserRequest userRequest // OAuth2UserRequest 에는 clientRegistration(설정 파일상 provider 측의 클라이언트,즉 우리의 등록 정보), accessToken 내장
+    ) throws OAuth2AuthenticationException {
 
-        // provider 가 넘겨준 유저 정보들 중 식별자가 되는 키의 이름
+        // OAuth2UserRequest 에 내장된 clientRegistration 추출
+        String registrationId = userRequest.getClientRegistration().getRegistrationId(); // 해당 provider 명
+        ProviderType providerType = ProviderType.from(registrationId); // 쓰기 편하게 enum 화
         String userNameAttributeName = userRequest.getClientRegistration().getProviderDetails().getUserInfoEndpoint()
-                .getUserNameAttributeName();
-
-        /**
-         * userRequest에서 registrationId 추출 후 registrationId으로 SocialType 저장
-         * http://localhost:8080/oauth2/authorization/kakao에서 kakao가 registrationId
-         * registrationId 를 enum 값화
-         */
-        String registrationId = userRequest.getClientRegistration().getRegistrationId();
-        ProviderType providerType = ProviderType.from(registrationId);
+                .getUserNameAttributeName(); // 해당 provider 상의 식별자 key 명
 
 
-        // 소셜쪽에서 전달받은 값들을 Map 형태로 받음
+        // OAuth2UserRequest 에 내장된 accesstoken 을 활용해 provider 로부터 OAuth2User(유저 정보)를 response 로 받음
+        // OAuth2User 에는 attributes , authorities 내장
+        OAuth2User oAuth2User = super.loadUser(userRequest);
+
+        // OAuth2User 에 내장된 attributes 추출
         Map<String, Object> attributes = oAuth2User.getAttributes();
 
-        // userNameAttributeName 키의 값. 즉, 식별자값.
-        OAuth2UserInfo oAuth2UserInfo = OAuth2UserInfoFactory.getOAuth2UserInfo(providerType, attributes);
-        String userIdentifier = oAuth2UserInfo.getUserIdentifier();
 
-        User user = getUser(userIdentifier, providerInfo);
+        OAuth2UserInfo oAuth2UserInfo = OAuth2UserInfoFactory.getOAuth2UserInfo(providerType, attributes);
+
+        User user = getOrSaveUser(providerType, oAuth2UserInfo);
+
 
         // Security context에 저장할 객체 생성
-        return UserPrincipal.builder()
+        return PrincipalDetails.builder()
                 .user(user)
                 .attributes(attributes)
-                .userNameAttributeName(userNameAttributeName)
                 .build();
     }
 
-    private User getUser(String userIdentifier, ProviderType providerType) {
-        Optional<User> optionalUser = userRepository.findByOAuthInfo(userIdentifier, providerType);
+
+
+    private User getOrSaveUser(ProviderType providerType,  OAuth2UserInfo oAuth2UserInfo) {
+
+        String providerId = oAuth2UserInfo.getProviderId();
+
+        Optional<User> optionalUser = userRepository.findByOAuthInfo(providerType, providerId);
 
         if (optionalUser.isEmpty()) {
             User unregisteredUser = User.builder()
-                    .identifier(userIdentifier)
-                    .role(Role.NOT_REGISTERED)
-                    .providerInfo(providerType)
+                    .providerType(providerType)
+                    .providerId(providerId)
+                    .role(Role.NOT_REGISTERED) // NOT_REGISTERED 이면 회원가입 페이지로 redirect  , NOT_REGISTERED가 아니면 서비스 페이지로 redirect
+                    .nickname(oAuth2UserInfo.getNickname())
+                    .email(oAuth2UserInfo.getEmail())
                     .build();
+
             return userRepository.save(unregisteredUser);
         }
+
         return optionalUser.get();
+
     }
 }
