@@ -1,4 +1,4 @@
-package com.fizz.fizz_server.security.common.enums;
+package com.fizz.fizz_server.security.jwt.enums;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;

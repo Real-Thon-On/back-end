@@ -19,7 +19,7 @@ public class OAuth2UserInfoFactory {
                 return OAuth2UserInfo.builder()
                         .providerType(providerType)
                         .attributes(attributes)
-                        .providerId((String) attributes.get("id"))
+                        .providerId(String.valueOf(attributes.get("id")))
                         .nickname((String) profile.get("nickname"))
                         .email((String) account.get("email"))
                         .build();

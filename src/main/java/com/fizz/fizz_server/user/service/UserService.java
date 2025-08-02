@@ -2,14 +2,13 @@ package com.fizz.fizz_server.user.service;
 
 import com.fizz.fizz_server.global.base.response.exception.BusinessException;
 import com.fizz.fizz_server.global.base.response.exception.ExceptionType;
-import com.fizz.fizz_server.security.jwt.util.JwtTokenProvider;
+import com.fizz.fizz_server.security.jwt.enums.Role;
+import com.fizz.fizz_server.user.dto.request.UserUpdateRequestDto;
 import com.fizz.fizz_server.user.entity.User;
 import com.fizz.fizz_server.user.dto.request.SignUpRequestDto;
-import com.fizz.fizz_server.user.dto.response.UserResponseDto;
+import com.fizz.fizz_server.user.dto.response.SignUpResponseDto;
 import com.fizz.fizz_server.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,7 +23,7 @@ public class UserService{
 
 
 
-    public UserResponseDto signup(SignUpRequestDto request) {
+    public SignUpResponseDto signup(SignUpRequestDto request) {
         if (userRepository.findByUsername(request.getUsername()).isPresent()) {
             throw new BusinessException(ExceptionType.DUPLICATED_USERNAME);
         }
@@ -34,8 +33,28 @@ public class UserService{
         User user = request.toEntity();
         user = userRepository.save(user);
 
-        return UserResponseDto.fromEntity(user);
+        return SignUpResponseDto.fromEntity(user);
     }
+
+    @Transactional
+    public SignUpResponseDto completeSignup(Long userId, UserUpdateRequestDto request) {
+        User user = userRepository
+                .findById(userId)
+                .orElseThrow(()->new BusinessException(ExceptionType.USER_NOT_FOUND));
+
+        if (user.getRole() != Role.NOT_REGISTERED) {
+            throw new BusinessException(ExceptionType.ALREADY_REGISTERED_USER);
+        }
+
+        // 최종 회원 가입을 위한 추가 작업 정의
+        user.update(request);
+
+        // USER 권한으로 승격
+        user.updateRole(Role.USER);
+
+        return SignUpResponseDto.fromEntity(user);
+    }
+
 
 
 

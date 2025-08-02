@@ -2,12 +2,12 @@ package com.fizz.fizz_server.user.entity;
 
 
 import com.fizz.fizz_server.global.base.domain.BaseEntity;
-import com.fizz.fizz_server.security.common.enums.Role;
+import com.fizz.fizz_server.security.jwt.enums.Role;
 import com.fizz.fizz_server.security.jwt.entity.RefreshToken;
 import com.fizz.fizz_server.security.oauth2.enums.ProviderType;
+import com.fizz.fizz_server.user.dto.request.UserUpdateRequestDto;
 import jakarta.persistence.*;
 import lombok.*;
-import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -64,28 +64,27 @@ public class User extends BaseEntity {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<RefreshToken> refreshTokens = new ArrayList<>();
 
+
+    /**
+     * 부가적인 정보들
+     */
     // 닉네임. 사용자명
     private String nickname;
     private String email;
 
 
-
-
-
-    // 비밀번호 암호화
-    public void encodePassword(PasswordEncoder passwordEncoder) {
-        this.password = passwordEncoder.encode(this.password);
+    public void updateRole(Role role){
+        this.role = role;
     }
 
-    // TODO: update 메서드 추가
-//    public void update(UserUpdateRequestDto dto) {
-//        if (dto.getUsername() != null) {
-//            this.username = dto.getUsername();
-//        }
-//        if (dto.getPassword() != null) {
-//            this.password = dto.getPassword();
-//        }
-//    }
+    public void update(UserUpdateRequestDto dto) {
+        if (dto.getNickname() != null && !dto.getNickname().isBlank()) {
+            this.nickname = dto.getNickname();
+        }
+        if (dto.getEmail() != null && !dto.getEmail().isBlank()) {
+            this.email = dto.getEmail();
+        }
+    }
 
 
 }

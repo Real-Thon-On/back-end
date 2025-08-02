@@ -28,8 +28,18 @@ public class AuthController {
         return ResponseEntity.ok(ResponseUtil.createSuccessResponse(authService.usernameLogin(request)));
     }
 
+    @PostMapping("/issue")
+    public ResponseEntity<ResponseBody<TokenResponseDto>> issueWithTempAccessToken(
+            @RequestHeader("Authorization") String bearerToken,
+            @RequestHeader(value = "Device-Id", required = false) String deviceId
+    ) {
+        TokenResponseDto tokenDto = authService.issueTokensWithTemporaryAccessToken(bearerToken, deviceId);
+        return ResponseEntity.ok(ResponseUtil.createSuccessResponse(tokenDto));
+    }
 
-    /** RefreshToken을 통한 AccessToken & RefreshToken 재발급 */
+
+
+    /** RefreshToken을 통한 AccessToken & RefreshToken 갱신(재발급) */
     @PostMapping("/refresh")
     public ResponseEntity<ResponseBody<TokenResponseDto>> reissueTokens(@RequestHeader("Authorization") String bearerToken) {
         return ResponseEntity.ok(ResponseUtil.createSuccessResponse(authService.reissueTokens(bearerToken)));

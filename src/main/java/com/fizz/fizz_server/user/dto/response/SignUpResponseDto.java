@@ -6,12 +6,12 @@ import lombok.Getter;
 
 @Getter
 @Builder
-public class UserResponseDto {
+public class SignUpResponseDto {
     private Long id;
     private String username;
 
-    public static UserResponseDto fromEntity(User user) {
-        return UserResponseDto.builder()
+    public static SignUpResponseDto fromEntity(User user) {
+        return SignUpResponseDto.builder()
                 .id(user.getId())
                 .username(user.getUsername())
                 .build();

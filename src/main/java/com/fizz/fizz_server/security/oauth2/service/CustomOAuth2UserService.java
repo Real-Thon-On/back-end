@@ -3,7 +3,7 @@ package com.fizz.fizz_server.security.oauth2.service;
 
 
 
-import com.fizz.fizz_server.security.common.enums.Role;
+import com.fizz.fizz_server.security.jwt.enums.Role;
 import com.fizz.fizz_server.security.oauth2.enums.ProviderType;
 import com.fizz.fizz_server.security.oauth2.info.OAuth2UserInfo;
 import com.fizz.fizz_server.security.oauth2.info.OAuth2UserInfoFactory;

@@ -28,8 +28,11 @@ public enum ExceptionType {
     USER_NOT_FOUND(NOT_FOUND, "U001", "존재하지 않는 사용자"),
     DUPLICATED_USER_ID(CONFLICT, "U002", "중복 아이디(PK)"),
     DUPLICATED_USERNAME(CONFLICT, "U003", "중복 아이디(username)"),
-    FORBIDDEN(HttpStatus.FORBIDDEN, "U004", "권한이 없음"),
-    UN_AUTHENTICATION(UNAUTHORIZED, "U005", "인증이 필요함"),
+    ALREADY_REGISTERED_USER(NOT_ACCEPTABLE , "U006","이미 최종 회원 가입된 사용자"),
+    NOT_REGISTERED_USER(FORBIDDEN , "U007","최종 회원 가입 되지 않은 사용자"),
+    UNAUTHORIZED_USER(UNAUTHORIZED, "U005","로그인 되지 않은 사용자"),
+
+
 
     //store
     STORE_NOT_FOUND(NOT_FOUND, "S001", "존재하지 않는 가게")

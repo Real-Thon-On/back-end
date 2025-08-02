@@ -1,7 +1,6 @@
 package com.fizz.fizz_server.security.oauth2.handler;
 
-import com.fizz.fizz_server.security.common.enums.Role;
-import com.fizz.fizz_server.security.jwt.dto.response.TokenResponseDto;
+import com.fizz.fizz_server.security.jwt.enums.Role;
 import com.fizz.fizz_server.security.jwt.service.AuthService;
 import com.fizz.fizz_server.security.oauth2.principal.PrincipalDetails;
 import com.fizz.fizz_server.user.entity.User;
@@ -59,29 +58,37 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         Role role = user.getRole();
         Long userId = user.getId();
 
+
+        String tempAccessToken = authService.issueTemporaryToken(userId);
+
+
         /**
-         * 회원가입 되지 않은 사용자는 별도의 token 발급 안함
+         * 최종 회원가입 이전의 사용자는 최종 회원가입 경로로의 접근을 위한 임시 access token 만 발급해줌
          * 여기까지 왔는데 회원가입 되지 않았다의 의미 : provider 상에 등록 완료됬고, 우리 db에 저장까지 됬는데 추가적인 부가정보를 입력하지 않아 우리 애플리케이션 상에서 최종 회원가입 완료는 안된 상태
          */
+
+
         if (role == Role.NOT_REGISTERED) {
             return UriComponentsBuilder
                     .fromUriString(BASE_URL + SIGNUP_PATH) // fromUriString -> 상대경로 포함 가능
                     .queryParam("id", userId)
+                    .queryParam("access", tempAccessToken)
                     .build()
                     .toUriString();
         }
 
         /**
-         * 회원가입된 사용자에 대해선 access token 과 refresh token 을 함께 발급
+         * 최종 회원가입된 사용자에 대한 리다이렉트 :
+         * 리다이렉트에선 헤더 조작 못하기 때문에 여기선 access token 만 발급해주고,
+         * 프론트 단에선 여기서 받은 access token 을 활용해 refresh token 발급 요청 해서 따로 받아야됨
+         * ( 물론 쿼리 파라미터로 refresh 까지 같이 보내게 구현할 수 있는데 그러면 보안상 취약 )
          */
-        TokenResponseDto tokenDto = authService.issueTokensFor(user, deviceId);
 
 
         return UriComponentsBuilder
                 .fromHttpUrl(BASE_URL + AUTH_PATH) // fromHttpUrl() -> 절대 경로만 허용
-                .queryParam("access", tokenDto.getAccess())
-                .queryParam("refresh", tokenDto.getRefresh())
                 .queryParam("id", userId)
+                .queryParam("access", tempAccessToken)
                 .build()
                 .toUriString();
     }

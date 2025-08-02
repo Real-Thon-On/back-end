@@ -1,4 +1,4 @@
-package com.fizz.fizz_server.security.common.config;
+package com.fizz.fizz_server.security.jwt.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

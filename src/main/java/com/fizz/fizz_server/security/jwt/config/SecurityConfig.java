@@ -1,6 +1,8 @@
-package com.fizz.fizz_server.security.common.config;
+package com.fizz.fizz_server.security.jwt.config;
 
 import com.fizz.fizz_server.security.jwt.filter.JwtAuthenticationFilter;
+import com.fizz.fizz_server.security.jwt.handler.CustomAccessDeniedHandler;
+import com.fizz.fizz_server.security.jwt.handler.CustomAuthenticationEntryPoint;
 import com.fizz.fizz_server.security.jwt.service.CustomUserDetailsService;
 import com.fizz.fizz_server.security.jwt.util.JwtTokenProvider;
 import com.fizz.fizz_server.security.oauth2.handler.OAuth2FailureHandler;
@@ -47,8 +49,13 @@ public class SecurityConfig {
                 .formLogin(form -> form.disable())
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .exceptionHandling((exceptions) -> exceptions
+                        .authenticationEntryPoint(new CustomAuthenticationEntryPoint())
+                        .accessDeniedHandler(new CustomAccessDeniedHandler())
+                )
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/auth/**","/api/user/sign-up").permitAll()         // 로그인, 회원가입
+                        .requestMatchers(
+                                "/api/auth/login", "/api/user/sign-up").permitAll()         // 로그인, 회원가입
                         .anyRequest().permitAll()
                 )
 
@@ -61,6 +68,7 @@ public class SecurityConfig {
 
                 // jwt 설정
                 .addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider, customUserDetailsService), UsernamePasswordAuthenticationFilter.class);  // JWT 인증 필터 추가;
+
 
         return http.build();
     }

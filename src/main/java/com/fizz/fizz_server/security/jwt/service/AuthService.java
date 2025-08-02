@@ -2,6 +2,7 @@ package com.fizz.fizz_server.security.jwt.service;
 
 import com.fizz.fizz_server.global.base.response.exception.BusinessException;
 import com.fizz.fizz_server.global.base.response.exception.ExceptionType;
+import com.fizz.fizz_server.security.jwt.enums.Role;
 import com.fizz.fizz_server.security.jwt.dto.request.UsernameLoginRequestDto;
 import com.fizz.fizz_server.security.jwt.dto.response.TokenResponseDto;
 import com.fizz.fizz_server.security.jwt.entity.RefreshToken;
@@ -42,13 +43,35 @@ public class AuthService {
             throw new BusinessException(ExceptionType.PASSWORD_NOT_MATCHED);
         }
 
+        if (user.getRole() == Role.NOT_REGISTERED) {
+            String tempAccessToken = issueTemporaryToken(user.getId());
+            return TokenResponseDto.builder()
+                    .access(tempAccessToken)
+                    .refresh(null) // 정식 회원 가입까지 안되있으므로 장기 로그인을 위한 refresh token 은 불필요하여 굳이 발급 안함
+                    .build();
+        }
 
-
+        // 최종 회원 가입까지 완료된 사용자인 경우 정식 access token 과 refresh token 발급해줌
         return issueTokensFor(user, request.getDeviceId());
     }
 
+    /**
+     * 임시 access token 발급을 위한 메서드
+     * 최종 회원가입까진 완료하지 않은 유저들의 제한된 기능 이용을 위해 제공
+     * @return
+     */
+    public String issueTemporaryToken(Long userId) {
+        return jwtTokenProvider.generateAccessToken(userId);
+    }
 
 
+    // 얘는 refresh token 과는 별개로 특정 유저 & 기기에 대해 access token 과 refresh token 쌍 새로 발급/갱신
+    /**
+     * 최종 회원 가입 완료된 유저들에 대해 access token 과 refresh token 발급
+     * @param user
+     * @param deviceId
+     * @return
+     */
     public TokenResponseDto issueTokensFor(User user, String deviceId) {
 
 
@@ -88,6 +111,24 @@ public class AuthService {
                 .build();
     }
 
+
+    public TokenResponseDto issueTokensWithTemporaryAccessToken(String bearerToken, String deviceId) {
+        String accessToken = JwtTokenProvider.extractToken(bearerToken);
+        Long userId = jwtTokenProvider.extractId(accessToken);
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new BusinessException(ExceptionType.USER_NOT_FOUND));
+
+        if (user.getRole() == Role.NOT_REGISTERED) {
+            throw new BusinessException(ExceptionType.NOT_REGISTERED_USER);
+        }
+
+        return issueTokensFor(user, deviceId);
+    }
+
+
+
+    // 얘는 refresh token 을 사용한 갱신 목적으로 access token 과 refresh token 쌍 발급해주는거
     /**
      * refresh token 을 활용해  access token 신규 발급
      * rtr 전략을 활용해  refresh token도 신규 발급, 기존 refresh token 은 폐기

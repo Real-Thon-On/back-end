@@ -1,7 +1,7 @@
 package com.fizz.fizz_server.user.dto.request;
 
 
-import com.fizz.fizz_server.security.common.enums.Role;
+import com.fizz.fizz_server.security.jwt.enums.Role;
 import com.fizz.fizz_server.user.entity.User;
 import lombok.*;
 
