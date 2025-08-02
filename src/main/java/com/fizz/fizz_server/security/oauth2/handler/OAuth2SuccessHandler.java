@@ -19,7 +19,6 @@ import java.io.IOException;
 @Component
 @RequiredArgsConstructor
 public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
-    // TODO : yml 에 해당 경로 정의
     @Value("${oauth2.url.base}")
     private String BASE_URL;
 
