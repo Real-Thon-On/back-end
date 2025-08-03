@@ -51,6 +51,11 @@ dependencies {
 	//oauth2
 	implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
 
+	//swagger
+	implementation 'io.swagger.core.v3:swagger-annotations:2.2.34'
+	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.0.2'
+
+
 }
 
 tasks.named('test') {

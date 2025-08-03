@@ -6,10 +6,10 @@ import lombok.Builder;
 import lombok.Getter;
 
 
+
 /**
  * 자체 로그인을 위한 dto
  */
-
 @Getter
 @AllArgsConstructor
 @Builder
