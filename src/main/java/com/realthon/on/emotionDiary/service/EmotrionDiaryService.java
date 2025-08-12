@@ -43,6 +43,13 @@ public class EmotrionDiaryService {
         return EmotionDiaryResponseDto.fromEntity(diary);
     }
 
+    public List<EmotionDiaryResponseDto> getAllByUserId(Long userId) {
+        return emotionDiaryRepository.findAllByUser_IdOrderByCreatedAtDesc(userId)
+                .stream()
+                .map(EmotionDiaryResponseDto::fromEntity)
+                .collect(Collectors.toList());
+    }
+
     // 모든 감정일기 조회
     //추후 페이징 처리
     public List<EmotionDiaryResponseDto> getAllDiaries() {
