@@ -34,7 +34,9 @@ public class PrincipalDetails implements OAuth2User, UserDetails {
         this.user = user;
         this.attributes = attributes;
     }
-
+    public Long getId() {
+        return user.getId();
+    }
 
     @Override
     public String getName() {
