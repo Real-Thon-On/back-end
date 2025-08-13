@@ -5,6 +5,10 @@ import com.realthon.on.user.entity.User;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.LocalDate;
+import java.util.HashSet;
+import java.util.Set;
+
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -19,21 +23,34 @@ public class EmotionDiary extends BaseEntity {
     @JoinColumn(name = "user_id")
     private User user;
 
-    private String title;
-
-    @Lob
+    @Column(length = 500)
     private String content;
 
+    @Enumerated(EnumType.STRING)
+    private WeatherType weather;
+
+    private LocalDate date;
+
+    @ElementCollection
+    @CollectionTable(name = "diary_hashtag", joinColumns = @JoinColumn(name = "diary_id"))
+    @Column(name = "hashtag")
+    private Set<String> hashtags = new HashSet<>();
+
     @Builder
-    public EmotionDiary(User user, String title, String content) {
+    public EmotionDiary(User user, String content, LocalDate date, WeatherType weather, Set<String> hashtags) {
         this.user = user;
-        this.title = title;
+
         this.content = content;
+        this.date = date != null ? date : LocalDate.now();
+        this.weather = weather;
+        this.hashtags = hashtags;
     }
 
-    public void update(String title, String content) {
-        this.title = title;
+    public void update(LocalDate date, WeatherType weather, Set<String>hashtags, String content) {
         this.content = content;
+        this.weather = weather;
+        this.hashtags = hashtags;
+        this.date = date;
     }
 
 }

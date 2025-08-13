@@ -32,7 +32,7 @@ public class EmotionDiaryController {
         return ResponseEntity.ok(ResponseUtil.createSuccessResponse(responseDto));
     }
 
-    @Operation(summary = "특정 감정일기 조회", description = "ID를 통해 특정 감정일기를 조회합니다.")
+    @Operation(summary = "특정 감정일기 조회", description = "diaryID를 통해 특정 감정일기를 조회합니다.")
     @GetMapping("/{id}")
     public ResponseEntity<ResponseBody<EmotionDiaryResponseDto>> getDiaryById(@PathVariable Long id) {
         EmotionDiaryResponseDto responseDto = emotionDiaryService.getDiaryById(id);
@@ -42,28 +42,22 @@ public class EmotionDiaryController {
 
     @Operation(
             summary = "감정일기 목록 조회",
-            description = "쿼리 파라미터 userId를 전달하면 해당 사용자의 감정일기 목록을 조회하고, " +
-                    "userId를 전달하지 않으면 전체 감정일기 목록을 조회합니다."
+            description = "쿼리 파라미터 userId를 전달하면 해당 사용자의 감정일기 목록을 조회합니다."
     )
     @GetMapping
-    public ResponseEntity<ResponseBody<List<EmotionDiaryResponseDto>>> getDiariesByUserId(@RequestParam(required = false) Long userId) {
-        List<EmotionDiaryResponseDto> diaries;
-        if (userId == null) {
-            diaries = emotionDiaryService.getAllDiaries();  // 전체 일기 조회
-        } else {
-            diaries = emotionDiaryService.getAllByUserId(userId);  // 특정 사용자 일기 조회
-        }
+    public ResponseEntity<ResponseBody<List<EmotionDiaryResponseDto>>> getDiariesByUserId(@RequestParam Long userId) {
+        List<EmotionDiaryResponseDto> diaries = emotionDiaryService.getAllByUserId(userId);
         return ResponseEntity.ok(ResponseUtil.createSuccessResponse(diaries));
     }
 
-    @Operation(summary = "감정일기 수정", description = "ID를 통해 특정 감정일기를 수정합니다.")
+    @Operation(summary = "감정일기 수정", description = "diaryID를 통해 특정 감정일기를 수정합니다.")
     @PutMapping("/{id}")
     public ResponseEntity<ResponseBody<EmotionDiaryResponseDto>> updateDiary(@PathVariable Long id, @RequestBody @Valid EmotionDiaryRequestDto.UpdateEmotionDiaryRequestDto requestDto, @AuthenticationPrincipal PrincipalDetails principalDetails) {
-        EmotionDiaryResponseDto responseDto = emotionDiaryService.updateDiary(id, requestDto,principalDetails.getId() );
+        EmotionDiaryResponseDto responseDto = emotionDiaryService.updateDiary(id, requestDto, principalDetails.getId() );
         return ResponseEntity.ok(ResponseUtil.createSuccessResponse(responseDto));
     }
 
-    @Operation(summary = "감정일기 삭제", description = "ID를 통해 특정 감정일기를 삭제합니다.")
+    @Operation(summary = "감정일기 삭제", description = "diaryId를 통해 특정 감정일기를 삭제합니다.")
     @DeleteMapping("/{id}")
     public ResponseEntity<ResponseBody<String>> deleteDiary(@PathVariable Long id) {
         emotionDiaryService.deleteDiary(id);
