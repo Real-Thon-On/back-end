@@ -21,7 +21,7 @@ import org.springframework.web.bind.annotation.*;
 public class LikeController {
     private final LikeService likeService;
 
-    @Operation(summary = "좋아요 생성", description = "새로운 좋아요를 생성합니다.")
+    @Operation(summary = "좋아요 등록", description = "새로운 좋아요를 등록합니다.")
     @PostMapping
     public ResponseEntity<ResponseBody<String>> like(@PathVariable Long boardId,
                                      @AuthenticationPrincipal PrincipalDetails principalDetails) {
@@ -29,6 +29,7 @@ public class LikeController {
         return ResponseEntity.ok(ResponseUtil.createSuccessResponse("좋아요가 성공적으로 등록되었습니다."));
     }
 
+    @Operation(summary = "좋아요 취소", description = "좋아요를 취소합니다.")
     @DeleteMapping
     public ResponseEntity<ResponseBody<String>> unlike(@PathVariable Long boardId,
                                        @AuthenticationPrincipal PrincipalDetails principalDetails) {
@@ -36,6 +37,7 @@ public class LikeController {
         return ResponseEntity.ok(ResponseUtil.createSuccessResponse("좋아요가 성공적으로 취소되었습니다."));
     }
 
+    @Operation(summary = "좋아요 개수", description = "게시글별 좋아요 개수를 집계합니다")
     @GetMapping("/count")
     public ResponseEntity<ResponseBody<CommunityResponseDto.LikesCountResponseDto>> getLikesCount(@PathVariable Long boardId) {
         long count = likeService.getLikesCountByBoard(boardId);

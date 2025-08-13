@@ -41,7 +41,7 @@ public class EmotionDiaryController {
 
 
     @Operation(
-            summary = "감정일기 목록 조회",
+            summary = "유저별 감정일기 목록 조회",
             description = "쿼리 파라미터 userId를 전달하면 해당 사용자의 감정일기 목록을 조회합니다."
     )
     @GetMapping
