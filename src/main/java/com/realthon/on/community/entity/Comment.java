@@ -1,39 +1,41 @@
-package com.realthon.on.emotionDiary.entity;
-
+package com.realthon.on.community.entity;
 import com.realthon.on.global.base.domain.BaseEntity;
 import com.realthon.on.user.entity.User;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.HashSet;
+import java.util.Set;
+
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
-public class EmotionDiary extends BaseEntity {
-
+public class Comment extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id")
+    @JoinColumn(name = "board_id", nullable = false)
+    private Board board;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    private String title;
-
     @Lob
+    @Column(nullable = false)
     private String content;
 
     @Builder
-    public EmotionDiary(User user, String title, String content) {
+    public Comment(User user, Board board,String title, String content) {
         this.user = user;
-        this.title = title;
+        this.board = board;
         this.content = content;
     }
 
-    public void update(String title, String content) {
-        this.title = title;
+    public void update(String content) {
         this.content = content;
     }
-
 }
