@@ -1,15 +1,21 @@
 package com.realthon.on.emotionDiary.dto.response;
 
 import com.realthon.on.emotionDiary.entity.EmotionDiary;
+import com.realthon.on.emotionDiary.entity.WeatherType;
 import lombok.*;
+
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Set;
 
 @Getter
 @Builder
 public class EmotionDiaryResponseDto {
         private Long id;
         private Long userId;
-        private String title;
+        private LocalDate date;
+        private WeatherType weather;
+        private Set<String> hashtags;
         private String content;
         private LocalDateTime createdAt;
         private LocalDateTime modifiedAt;
@@ -18,7 +24,9 @@ public class EmotionDiaryResponseDto {
                 return EmotionDiaryResponseDto.builder()
                         .id(diary.getId())
                         .userId(diary.getUser().getId())
-                        .title(diary.getTitle())
+                        .date(diary.getDate())
+                        .weather(diary.getWeather())
+                        .hashtags(diary.getHashtags())
                         .content(diary.getContent())
                         .createdAt(diary.getCreatedAt())
                         .modifiedAt(diary.getModifiedAt())

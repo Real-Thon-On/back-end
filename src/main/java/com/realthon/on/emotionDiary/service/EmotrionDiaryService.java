@@ -23,13 +23,15 @@ public class EmotrionDiaryService {
     private final UserRepository userRepository;
 
     //감정일기 생성
-    @Transactional // 쓰기 작업이므로 트랜잭션 설정
+    @Transactional
     public EmotionDiaryResponseDto createDiary(EmotionDiaryRequestDto.AddEmotionDiaryRequestDto request) {
         User user = userRepository.findById(request.getUserId())
                 .orElseThrow(() -> new BusinessException(ExceptionType.USER_NOT_FOUND));
         EmotionDiary diary = EmotionDiary.builder()
                 .user(user)
-                .title(request.getTitle())
+                .weather(request.getWeather())
+                .date(request.getDate())
+                .hashtags(request.getHashtags())
                 .content(request.getContent())
                 .build();
         EmotionDiary savedDiary = emotionDiaryRepository.save(diary);
@@ -50,14 +52,6 @@ public class EmotrionDiaryService {
                 .collect(Collectors.toList());
     }
 
-    // 모든 감정일기 조회
-    //추후 페이징 처리
-    public List<EmotionDiaryResponseDto> getAllDiaries() {
-        return emotionDiaryRepository.findAll().stream()
-                .map(EmotionDiaryResponseDto::fromEntity)
-                .collect(Collectors.toList());
-    }
-
     //감정일기 수정
     @Transactional
     public EmotionDiaryResponseDto updateDiary(Long id, EmotionDiaryRequestDto.UpdateEmotionDiaryRequestDto request,Long authenticatedUserId) {
@@ -68,7 +62,7 @@ public class EmotrionDiaryService {
             throw new BusinessException(ExceptionType.ACCESS_DENIED);
         }
 
-        diary.update(request.getTitle(), request.getContent()); // update 메서드에 감정 필드 추가
+        diary.update(request.getDate(), request.getWeather(),request.getHashtags(), request.getContent()); // update 메서드에 감정 필드 추가
         return EmotionDiaryResponseDto.fromEntity(diary);
     }
     //감정일기 삭제 (Delete)
