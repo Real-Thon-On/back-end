@@ -19,6 +19,8 @@ public class CommunityResponseDto {
         private String title;
         private String content;
         private Long userId;
+        private String userName;
+        //private String profileImage;
         private Set<HashTagType> hashtags;
         private LocalDateTime createdAt;
         private LocalDateTime modifiedAt;
@@ -33,6 +35,8 @@ public class CommunityResponseDto {
                 .hashtags(board.getHashtags())
                 .createdAt(board.getCreatedAt())
                 .modifiedAt(board.getModifiedAt())
+                .userName(board.getUser().getUsername())
+                //.profileImage(board.getUser().getProfileImage())
                 .build();
 }
 

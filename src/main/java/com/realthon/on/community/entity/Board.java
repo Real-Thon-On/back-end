@@ -28,6 +28,8 @@ public class Board extends BaseEntity {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
+
+
     @ElementCollection(fetch = FetchType.EAGER,targetClass = HashTagType.class)
     @CollectionTable(name = "board_hashtags", joinColumns = @JoinColumn(name = "board_id"))
     @Enumerated(EnumType.STRING)
