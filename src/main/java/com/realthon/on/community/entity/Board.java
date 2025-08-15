@@ -5,11 +5,14 @@ import com.realthon.on.user.entity.User;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @Entity
 @Getter
+@Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 public class Board extends BaseEntity {
@@ -24,11 +27,12 @@ public class Board extends BaseEntity {
     @Lob
     private String content;
 
+    @ElementCollection
+    private List<String> imageUrls = new ArrayList<>();
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
-
-
 
     @ElementCollection(fetch = FetchType.EAGER,targetClass = HashTagType.class)
     @CollectionTable(name = "board_hashtags", joinColumns = @JoinColumn(name = "board_id"))
@@ -36,11 +40,12 @@ public class Board extends BaseEntity {
     private Set<HashTagType> hashtags = new HashSet<>();
 
     @Builder
-    public Board(User user, String title, String content, Set<HashTagType> hashtags) {
+    public Board(User user, String title, String content, Set<HashTagType> hashtags, List<String> imageUrls) {
         this.user = user;
         this.title = title;
         this.content = content;
         this.hashtags = hashtags != null ? hashtags : new HashSet<>();
+        this.imageUrls = imageUrls != null ? imageUrls : new ArrayList<>();
     }
 
     public void update(String title, String content,Set<HashTagType> hashtags) {

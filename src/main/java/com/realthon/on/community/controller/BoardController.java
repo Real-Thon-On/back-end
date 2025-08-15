@@ -11,9 +11,11 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -26,9 +28,10 @@ public class BoardController {
     private final BoardService boardService;
 
     @Operation(summary = "게시글 생성", description = "새로운 게시글을 생성합니다.")
-    @PostMapping
-    public ResponseEntity<ResponseBody<CommunityResponseDto.BoardResponseDto>> createDiary(@RequestBody @Valid CommunityReqeustDto.AddBaordRequestDto requestDto) {
-        CommunityResponseDto.BoardResponseDto responseDto = boardService.createBoard(requestDto);
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<ResponseBody<CommunityResponseDto.BoardResponseDto>> createDiary(@RequestPart("data") @Valid CommunityReqeustDto.AddBaordRequestDto requestDto,
+                                                                                           @RequestPart(value = "file", required = false) List<MultipartFile> images) {
+        CommunityResponseDto.BoardResponseDto responseDto = boardService.createBoard(requestDto, images);
 
         return ResponseEntity.ok(ResponseUtil.createSuccessResponse(responseDto));
     }
@@ -45,10 +48,11 @@ public class BoardController {
     @PutMapping("/{id}")
     public ResponseEntity<ResponseBody<CommunityResponseDto.BoardResponseDto>> updateBoard(
             @PathVariable Long id,
-            @RequestBody @Valid CommunityReqeustDto.UpdateBoardRequestDto requestDto,
+            @RequestPart("data") @Valid CommunityReqeustDto.UpdateBoardRequestDto requestDto,
+            @RequestPart(value="file", required=false) List<MultipartFile> images,
             @AuthenticationPrincipal PrincipalDetails principalDetails) {
 
-        CommunityResponseDto.BoardResponseDto responseDto = boardService.updateBoard(id, requestDto,principalDetails.getId());
+        CommunityResponseDto.BoardResponseDto responseDto = boardService.updateBoard(id, requestDto,images,1L);
         return ResponseEntity.ok(ResponseUtil.createSuccessResponse(responseDto));
     }
 
