@@ -68,7 +68,7 @@ public class CommunityResponseDto {
 
     @Getter
     @AllArgsConstructor
-    public static class LikesCountResponseDto {
+    public static class CountResponseDto {
         private Long boardId;
         private Long count;
     }

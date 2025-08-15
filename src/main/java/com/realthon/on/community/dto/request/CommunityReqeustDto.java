@@ -2,6 +2,7 @@ package com.realthon.on.community.dto.request;
 
 import com.realthon.on.community.entity.HashTagType;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import lombok.*;
 
 import java.util.Set;
@@ -16,6 +17,7 @@ public class CommunityReqeustDto {
         private Long userId;
         @NotBlank(message = "제목은 반드시 입력해야 합니다.")
         private String title;
+        @Size(max = 500, message = "내용은 500자 이내여야 합니다.")
         private String content;
         private Set<HashTagType> hashtags;
     }
@@ -28,6 +30,7 @@ public class CommunityReqeustDto {
     public static class UpdateBoardRequestDto {
         @NotBlank(message = "제목은 반드시 입력해야 합니다.")
         private String title;
+        @Size(max = 500, message = "내용은 500자 이내여야 합니다.")
         private String content;
         private Set<HashTagType> hashtags;
     }

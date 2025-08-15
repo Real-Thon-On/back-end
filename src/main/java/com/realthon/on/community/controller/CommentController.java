@@ -56,4 +56,12 @@ public class CommentController {
     public ResponseEntity<ResponseBody<String>> deleteComment(@PathVariable Long id) {
         commentService.deleteComment(id);
         return ResponseEntity.ok(ResponseUtil.createSuccessResponse("댓글이 성공적으로 삭제되었습니다."));
+    }
+
+    @Operation(summary = "댓글 개수", description = "게시글별 댓글 개수를 집계합니다")
+    @GetMapping("/api/boards/{boardId}/comments/count")
+    public ResponseEntity<ResponseBody<CommunityResponseDto.CountResponseDto>> getCommentsCount(@PathVariable Long boardId) {
+        long count = commentService.getCommentsCountByBoard(boardId);
+        CommunityResponseDto.CountResponseDto responseDto = new CommunityResponseDto.CountResponseDto(boardId, count);
+        return ResponseEntity.ok(ResponseUtil.createSuccessResponse(responseDto));
     }}
