@@ -3,10 +3,16 @@ package com.realthon.on.ai.groq.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.realthon.on.ai.groq.dto.RecommendedEventDto;
 import com.realthon.on.ai.groq.dto.request.DiaryAnalyzeRequest;
 import com.realthon.on.ai.groq.dto.request.EvaluateHarmfulnessRequest;
+import com.realthon.on.ai.groq.dto.request.RecommendEventsRequest;
 import com.realthon.on.ai.groq.dto.response.DiaryAnalyzeResponse;
 import com.realthon.on.ai.groq.dto.response.EvaluateHarmfulnessResponse;
+import com.realthon.on.ai.groq.dto.response.RecommendEventsResponse;
+import com.realthon.on.events.entity.LocalArtEvent;
+import com.realthon.on.events.repository.LocalArtEventRepository;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -15,14 +21,15 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class GroqApiService {
 
-    @Autowired
-    private RestTemplate restTemplate;
+    private final RestTemplate restTemplate;
 
     @Value("${groq.api.key}")
     private String apiKey;
@@ -32,6 +39,8 @@ public class GroqApiService {
     private String model;
 
     private static final ObjectMapper MAPPER = new ObjectMapper();
+    private final LocalArtEventRepository eventRepository;
+
 
     public EvaluateHarmfulnessResponse evaluateHarmfulness(EvaluateHarmfulnessRequest request) {
         String url = "https://api.groq.com/openai/v1/chat/completions";
@@ -229,6 +238,155 @@ public class GroqApiService {
     private static String safeOrEmpty(String s) {
         return s == null ? "" : safe(s);
     }
+
+
+    public RecommendEventsResponse recommendEvents(RecommendEventsRequest req) {
+        int limit = Math.max(1, req.getLimit());
+        List<String> keywords = req.getKeywords() == null ? List.of() : req.getKeywords();
+
+        // 종료일 임박 Top100 카탈로그
+        var events = eventRepository.findSoonestOrderByEndDateNullsLast(org.springframework.data.domain.PageRequest.of(0, 100));
+        if (events.isEmpty()) return RecommendEventsResponse.builder().items(List.of()).build();
+
+        // 카탈로그 간결 문자열 (JSON lines)
+        StringBuilder catalog = new StringBuilder();
+        for (LocalArtEvent e : events) {
+            catalog.append(String.format(
+                    "- {\"id\": %d, \"title\": \"%s\", \"url\": \"%s\", \"mainCategory\": \"%s\", \"imageCount\": %s}\n",
+                    e.getId(),
+                    jsonEscape(nz(e.getTitle()) ? e.getTitle() : ""),
+                    jsonEscape(nz(e.getUrl()) ? e.getUrl() : ""),
+                    jsonEscape(nz(e.getMainCategory()) ? e.getMainCategory() : ""),
+                    e.getImageCount() == null ? "null" : e.getImageCount().toString()
+            ));
+        }
+
+        // Groq 프롬프트 (감정 제거, 키워드 중심)
+        String systemPrompt =
+                "You are a recommender for cultural events in Korea. " +
+                        "Use given keywords to pick TOP-N events from the catalog. " +
+                        "Return STRICT JSON only: {\"items\":[{\"id\":<long>,\"score\":<0..1>,\"reason\":\"short Korean reason\"}]}. " +
+                        "Prioritize titles semantically related to keywords. " +
+                        "If ties, prefer higher imageCount, then higher id.";
+
+        String userPrompt = String.format(java.util.Locale.ROOT,
+                "Keywords: %s\n\n" +
+                        "Catalog (JSON lines, up to 100):\n%s\n\n" +
+                        "Task:\n" +
+                        "- Select top %d items best matching the keywords.\n" +
+                        "- Output ONLY JSON:\n" +
+                        "{\n" +
+                        "  \"items\": [\n" +
+                        "    {\"id\": 123, \"score\": 0.82, \"reason\": \"한국어로 간단한 근거\"}\n" +
+                        "  ]\n" +
+                        "}\n" +
+                        "- No markdown, no extra text.",
+                String.valueOf(keywords),
+                catalog.toString(),
+                limit
+        );
+
+        Map<String, Object> body = new HashMap<>();
+        List<Map<String, String>> messages = new ArrayList<>();
+        messages.add(Map.of("role", "system", "content", systemPrompt));
+        messages.add(Map.of("role", "user", "content", userPrompt));
+        body.put("model", model);
+        body.put("messages", messages);
+        body.put("temperature", 0.3);
+        body.put("max_tokens", 800);
+        body.put("top_p", 1);
+        body.put("stream", false);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Authorization", "Bearer " + apiKey);
+        headers.setContentType(MediaType.APPLICATION_JSON);
+
+        try {
+            String requestJson = MAPPER.writeValueAsString(body);
+            String raw = restTemplate.exchange(
+                    "https://api.groq.com/openai/v1/chat/completions",
+                    HttpMethod.POST, new HttpEntity<>(requestJson, headers), String.class
+            ).getBody();
+
+            String content = extractAssistantContent(raw); // 기존 유틸
+            JsonNode root = MAPPER.readTree(content);
+            JsonNode items = root.path("items");
+            if (!items.isArray()) throw new IllegalStateException("No items array");
+
+            Map<Long, LocalArtEvent> index = events.stream()
+                    .collect(java.util.stream.Collectors.toMap(LocalArtEvent::getId, x -> x));
+
+            List<RecommendedEventDto> out = new ArrayList<>();
+            for (JsonNode it : items) {
+                long id = it.path("id").asLong(-1);
+                double score = it.path("score").asDouble(0.0);
+                String reason = it.path("reason").asText("");
+
+                LocalArtEvent e = index.get(id);
+                if (e == null) continue;
+
+                out.add(RecommendedEventDto.builder()
+                        .id(e.getId())
+                        .title(e.getTitle())
+                        .url(e.getUrl())
+                        .imageCount(e.getImageCount())
+                        .mainCategory(e.getMainCategory())
+                        .score(score)
+                        .matchedKeywords(reason)
+                        .build());
+            }
+            if (out.size() > limit) out = out.subList(0, limit);
+
+            return RecommendEventsResponse.builder().items(out).build();
+
+        } catch (Exception ex) {
+            log.warn("Groq recommend failed, fallback to local heuristic. cause={}", ex.toString());
+            return fallbackRecommend(keywords, events, limit);
+        }
+    }
+
+    // === 폴백: 키워드 포함수 기반 간단 점수화 (감정 사용 제거) ===
+    private RecommendEventsResponse fallbackRecommend(List<String> keywords, List<LocalArtEvent> events, int limit) {
+        List<String> normKws = (keywords == null ? List.<String>of() : keywords).stream()
+                .filter(Objects::nonNull).map(this::normalizeKo).filter(s -> !s.isBlank()).toList();
+
+        List<RecommendedEventDto> list = events.stream().map(e -> {
+            String title = java.util.Optional.ofNullable(e.getTitle()).orElse("");
+            String nt = normalizeKo(title);
+            double score = 0.0;
+            for (String k : normKws) if (!k.isBlank() && nt.contains(k)) score += 3.0;
+            return RecommendedEventDto.builder()
+                    .id(e.getId()).title(e.getTitle()).url(e.getUrl())
+                    .imageCount(e.getImageCount()).mainCategory(e.getMainCategory())
+                    .score(score).matchedKeywords("")
+                    .build();
+        }).sorted(
+                java.util.Comparator.comparing(RecommendedEventDto::getScore).reversed()
+                        .thenComparing((RecommendedEventDto r) -> nvl(r.getImageCount(), -1)).reversed()
+                        .thenComparing(RecommendedEventDto::getId).reversed()
+        ).limit(limit).collect(java.util.stream.Collectors.toList());
+
+        return RecommendEventsResponse.builder().items(list).build();
+    }
+
+    // ===== 유틸 =====
+    private boolean nz(String s){ return s != null && !s.isBlank(); }
+    private <T> T nvl(T a, T b){ return a != null ? a : b; }
+    private String normalizeKo(String s) {
+        if (s == null) return "";
+        String t = java.text.Normalizer.normalize(s, java.text.Normalizer.Form.NFKC).toLowerCase(Locale.ROOT);
+        t = t.replaceAll("[^\\p{IsAlphabetic}\\p{IsDigit}\\p{IsHan}\\p{Blank}]", " ");
+        return t.replaceAll("\\s+", " ").trim();
+    }
+    private boolean containsAny(String text, List<String> needles) {
+        for (String n : needles) if (text.contains(normalizeKo(n))) return true;
+        return false;
+    }
+    private String jsonEscape(String s){
+        if (s == null) return "";
+        return s.replace("\\", "\\\\").replace("\"","\\\"").replace("\n"," ").replace("\r"," ");
+    }
+
 
 
 }

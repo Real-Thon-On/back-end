@@ -2,8 +2,10 @@ package com.realthon.on.ai.groq.controller;
 
 import com.realthon.on.ai.groq.dto.request.DiaryAnalyzeRequest;
 import com.realthon.on.ai.groq.dto.request.EvaluateHarmfulnessRequest;
+import com.realthon.on.ai.groq.dto.request.RecommendEventsRequest;
 import com.realthon.on.ai.groq.dto.response.DiaryAnalyzeResponse;
 import com.realthon.on.ai.groq.dto.response.EvaluateHarmfulnessResponse;
+import com.realthon.on.ai.groq.dto.response.RecommendEventsResponse;
 import com.realthon.on.ai.groq.service.GroqApiService;
 import com.realthon.on.global.base.response.ResponseBody;
 import com.realthon.on.global.base.response.ResponseUtil;
@@ -79,4 +81,31 @@ public class GroqApiController {
     ) throws IOException {
         return ResponseEntity.ok(ResponseUtil.createSuccessResponse(groqApiService.analyzeDiary(request)));
     }
+
+    @Operation(
+            summary = "키워드 기반 지역 예술 행사 추천",
+            description = "일기 분석에서 얻은 핵심 키워드만 전달하면, 종료일 임박 Top100 카탈로그와 매칭해 Groq로 상위 N개 추천을 반환합니다."
+    )
+    @PostMapping("/diary/recommend")
+    public ResponseEntity<ResponseBody<RecommendEventsResponse>> recommend(
+            @io.swagger.v3.oas.annotations.parameters.RequestBody(
+                    description = "추천 요청 본문 (keywords / limit)",
+                    required = true,
+                    content = @Content(
+                            schema = @Schema(implementation = com.realthon.on.ai.groq.dto.request.RecommendEventsRequest.class),
+                            examples = @ExampleObject(
+                                    name = "recommend-request",
+                                    value = "{\n" +
+                                            "  \"keywords\": [\"업무 피로\", \"자기효능감 저하\", \"팀원들\", \"부족한 자신\"],\n" +
+                                            "  \"limit\": 5\n" +
+                                            "}"
+                            )
+                    )
+            )
+            @RequestBody com.realthon.on.ai.groq.dto.request.RecommendEventsRequest request
+    ) {
+        var res = groqApiService.recommendEvents(request);
+        return ResponseEntity.ok(ResponseUtil.createSuccessResponse(res));
+    }
+
 }
