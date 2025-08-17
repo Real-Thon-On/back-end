@@ -7,11 +7,17 @@ spring:
 
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: create
+    defer-datasource-initialization: true   # Hibernate가 테이블 만든 뒤 data.sql 실행
     properties:
       hibernate:
         format_sql: true
     database: mysql
+
+  ##데이터베이스 초기화 모드 설정
+  sql:
+    init:
+      mode: always
 
   security:
     oauth2:
