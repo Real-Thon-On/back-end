@@ -21,7 +21,7 @@ public class CommunityResponseDto {
         private String content;
         private Long userId;
         private String userName;
-        //private String profileImage;
+        private String profileImageUrl;
         private Set<HashTagType> hashtags;
         private List<String> imageUrls;
         private LocalDateTime createdAt;
@@ -38,7 +38,7 @@ public class CommunityResponseDto {
                 .createdAt(board.getCreatedAt())
                 .modifiedAt(board.getModifiedAt())
                 .userName(board.getUser().getUsername())
-                //.profileImage(board.getUser().getProfileImage())
+                .profileImageUrl(board.getUser().getProfileImageUrl())
                 .imageUrls(board.getImageUrls())
                 .build();
 }

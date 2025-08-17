@@ -22,6 +22,7 @@ public class OAuth2UserInfoFactory {
                         .providerId(String.valueOf(attributes.get("id")))
                         .nickname((String) profile.get("nickname"))
                         .email((String) account.get("email"))
+                        .profileImageUrl((String) profile.get("profile_image_url"))
                         .build();
             }
             case NAVER -> {
@@ -34,6 +35,7 @@ public class OAuth2UserInfoFactory {
                         .providerId((String) response.get("id"))
                         .nickname((String) response.get("name"))
                         .email((String) response.get("email"))
+                        .profileImageUrl((String) response.get("profile_image_url"))
                         .build();
 
 
@@ -45,6 +47,7 @@ public class OAuth2UserInfoFactory {
                         .providerId((String) attributes.get("sub"))
                         .nickname((String) attributes.get("name"))
                         .email((String) attributes.get("email"))
+                        .profileImageUrl((String) attributes.get("picture"))
                         .build();
             }
         }

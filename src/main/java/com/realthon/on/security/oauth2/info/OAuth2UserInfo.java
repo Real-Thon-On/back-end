@@ -34,6 +34,7 @@ public class OAuth2UserInfo {
     // 해당 provider 상의 사용자명
     private String nickname;
     private String email;
+    private String profileImageUrl;
 
 
 
