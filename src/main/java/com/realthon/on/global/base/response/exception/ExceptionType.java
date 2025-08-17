@@ -31,12 +31,21 @@ public enum ExceptionType {
     ALREADY_REGISTERED_USER(NOT_ACCEPTABLE , "U006","이미 최종 회원 가입된 사용자"),
     NOT_REGISTERED_USER(FORBIDDEN , "U007","최종 회원 가입 되지 않은 사용자"),
     UNAUTHORIZED_USER(UNAUTHORIZED, "U005","로그인 되지 않은 사용자"),
+    ACCESS_DENIED(FORBIDDEN, "U008", "권한이 없습니다."),
 
 
 
     //store
-    STORE_NOT_FOUND(NOT_FOUND, "S001", "존재하지 않는 가게")
+    STORE_NOT_FOUND(NOT_FOUND, "S001", "존재하지 않는 가게"),
 
+    //diary
+    DIARY_NOT_FOUND(NOT_FOUND, "D001", "존재하지 않는 일기"),
+
+    //board
+    BOARD_NOT_FOUND(NOT_FOUND, "B001", "존재하지 않는 게시글"),
+    COMMENT_NOT_FOUND(NOT_FOUND, "B002", "존재하지 않는 댓글"),
+    LIKE_ALREADY_EXISTS(HttpStatus.CONFLICT, "B003", "이미 좋아요가 존재합니다."),
+    LIKE_NOT_FOUND(HttpStatus.NOT_FOUND, "B004", "좋아요가 존재하지 않습니다.");
     ;
 
 
