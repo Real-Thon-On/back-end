@@ -2,8 +2,10 @@ package com.realthon.on.ai.groq.controller;
 
 import com.realthon.on.ai.groq.dto.request.DiaryAnalyzeRequest;
 import com.realthon.on.ai.groq.dto.request.EvaluateHarmfulnessRequest;
+import com.realthon.on.ai.groq.dto.request.RecommendEventsRequest;
 import com.realthon.on.ai.groq.dto.response.DiaryAnalyzeResponse;
 import com.realthon.on.ai.groq.dto.response.EvaluateHarmfulnessResponse;
+import com.realthon.on.ai.groq.dto.response.RecommendEventsResponse;
 import com.realthon.on.ai.groq.service.GroqApiService;
 import com.realthon.on.global.base.response.ResponseBody;
 import com.realthon.on.global.base.response.ResponseUtil;
@@ -52,7 +54,6 @@ public class GroqApiController {
     ) throws IOException {
         return ResponseEntity.ok(ResponseUtil.createSuccessResponse(groqApiService.evaluateHarmfulness(request)));
     }
-
     @Operation(
             summary = "일기 분석 및 공감 답변 생성",
             description = "한국어 일기를 분석하여 감정/시각화 지표(JSON)와 공감/격려 답변 텍스트를 생성합니다. 프롬프트 지침은 영어, 출력은 한국어입니다."
@@ -60,7 +61,7 @@ public class GroqApiController {
     @PostMapping("/diary/analyze")
     public ResponseEntity<ResponseBody<DiaryAnalyzeResponse>> analyzeDiary(
             @io.swagger.v3.oas.annotations.parameters.RequestBody(
-                    description = "일기 분석 요청 본문",
+                    description = "일기 분석 요청 본문 (todayDate / userDiaryText)",
                     required = true,
                     content = @Content(
                             schema = @Schema(implementation = DiaryAnalyzeRequest.class),
@@ -68,8 +69,6 @@ public class GroqApiController {
                                     name = "diary-analyze-request",
                                     value = "{\n" +
                                             "  \"todayDate\": \"2025-08-17\",\n" +
-                                            "  \"userRegion\": \"서울 종로구\",\n" +
-                                            "  \"recentEntriesSummary\": \"최근 이틀 동안 업무 피로와 자기효능감 저하를 호소했습니다.\",\n" +
                                             "  \"userDiaryText\": \"오늘은 일을 해도 진척이 없어서 스스로가 부족하게 느껴졌습니다. 팀원들 눈치도 보이고 내일도 같은 하루일까 걱정이 됩니다.\"\n" +
                                             "}"
                             )
@@ -79,4 +78,32 @@ public class GroqApiController {
     ) throws IOException {
         return ResponseEntity.ok(ResponseUtil.createSuccessResponse(groqApiService.analyzeDiary(request)));
     }
+
+
+    @Operation(
+            summary = "키워드 기반 지역 예술 행사 추천",
+            description = "일기 분석에서 얻은 핵심 키워드만 전달하면, 종료일 임박 Top100 카탈로그와 매칭해 Groq로 상위 N개 추천을 반환합니다."
+    )
+    @PostMapping("/diary/recommend")
+    public ResponseEntity<ResponseBody<RecommendEventsResponse>> recommend(
+            @io.swagger.v3.oas.annotations.parameters.RequestBody(
+                    description = "추천 요청 본문 (keywords / limit)",
+                    required = true,
+                    content = @Content(
+                            schema = @Schema(implementation = com.realthon.on.ai.groq.dto.request.RecommendEventsRequest.class),
+                            examples = @ExampleObject(
+                                    name = "recommend-request",
+                                    value = "{\n" +
+                                            "  \"keywords\": [\"업무 피로\", \"자기효능감 저하\", \"팀원들\", \"부족한 자신\"],\n" +
+                                            "  \"limit\": 5\n" +
+                                            "}"
+                            )
+                    )
+            )
+            @RequestBody com.realthon.on.ai.groq.dto.request.RecommendEventsRequest request
+    ) {
+        var res = groqApiService.recommendEvents(request);
+        return ResponseEntity.ok(ResponseUtil.createSuccessResponse(res));
+    }
+
 }
