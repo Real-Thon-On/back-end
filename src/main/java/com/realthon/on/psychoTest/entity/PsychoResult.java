@@ -1,6 +1,7 @@
 package com.realthon.on.psychoTest.entity;
 
 import com.realthon.on.global.base.domain.BaseEntity;
+import com.realthon.on.user.entity.User;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -16,13 +17,16 @@ public class PsychoResult extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private Long userId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id") // DB 컬럼명
+    private User user; // 필드명
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "test_type_id")
     private PsychoTestType testType;
 
     private int totalScore;
-    private String resultText;
+    private String resultState;
+    private String resultMessage;
 
 }
