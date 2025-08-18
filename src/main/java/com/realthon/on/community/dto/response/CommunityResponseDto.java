@@ -49,7 +49,8 @@ public class CommunityResponseDto {
         private Long commentId;
         private String content;
         private Long boardId;
-        private Long userId;
+        private String userName;
+        private String profileImageUrl;
         private LocalDateTime createdAt;
         private LocalDateTime modifiedAt;
 
@@ -58,7 +59,8 @@ public class CommunityResponseDto {
     public static CommentResponseDto fromCommentEntity(Comment comment) {
         return CommentResponseDto.builder()
                 .commentId(comment.getId())
-                .userId(comment.getUser().getId())
+                .userName(comment.getUser().getUsername())
+                .profileImageUrl(comment.getUser().getProfileImageUrl())
                 .boardId(comment.getBoard().getId())
                 .content(comment.getContent())
                 .createdAt(comment.getCreatedAt())
