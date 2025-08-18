@@ -34,9 +34,9 @@ public class BoardController {
     }
 
     @Operation(summary = "해시태그별 게시글 목록 조회", description = "특정 해시태그에 해당하는 게시글 목록을 조회합니다.")
-    @GetMapping("/hashtag/{hashtag}")
+    @GetMapping
     public ResponseEntity<ResponseBody<List<CommunityResponseDto.BoardResponseDto>>> getBoardsByHashtag(
-            @PathVariable HashTagType hashtag) {
+            @RequestParam HashTagType hashtag) {
         List<CommunityResponseDto.BoardResponseDto> boards = boardService.getBoardsByHashTag(hashtag);
         return ResponseEntity.ok(ResponseUtil.createSuccessResponse(boards));
     }
