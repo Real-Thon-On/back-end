@@ -39,9 +39,9 @@ public class LikeController {
 
     @Operation(summary = "좋아요 개수", description = "게시글별 좋아요 개수를 집계합니다")
     @GetMapping("/count")
-    public ResponseEntity<ResponseBody<CommunityResponseDto.CountResponseDto>> getLikesCount(@PathVariable Long boardId) {
+    public ResponseEntity<ResponseBody<CommunityResponseDto.LikesCountResponseDto>> getLikesCount(@PathVariable Long boardId) {
         long count = likeService.getLikesCountByBoard(boardId);
-        CommunityResponseDto.CountResponseDto responseDto = new CommunityResponseDto.CountResponseDto(boardId, count);
+        CommunityResponseDto.LikesCountResponseDto responseDto = new CommunityResponseDto.LikesCountResponseDto(boardId, count);
         return ResponseEntity.ok(ResponseUtil.createSuccessResponse(responseDto));
     }
 }

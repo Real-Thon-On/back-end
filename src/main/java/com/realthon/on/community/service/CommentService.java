@@ -19,7 +19,6 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-@Transactional(readOnly = true)
 public class CommentService {
     private final CommentRepository commentRepository;
     private final UserRepository userRepository;
@@ -75,11 +74,5 @@ public class CommentService {
             throw new BusinessException(ExceptionType.COMMENT_NOT_FOUND);
         }
         commentRepository.deleteById(id);
-    }
-
-    public long getCommentsCountByBoard(Long boardId) {
-        Board board = boardRepository.findById(boardId)
-                .orElseThrow(() -> new BusinessException(ExceptionType.BOARD_NOT_FOUND));
-        return commentRepository.countByBoard(board);
     }
 }
