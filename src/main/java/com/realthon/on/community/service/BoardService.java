@@ -35,7 +35,7 @@ public class BoardService {
                 .content(request.getContent())
                 .user(user)
                 .hashtags(request.getHashtags())
-                .boardTypes(request.getBoardTypes())
+                .boardType(request.getBoardType())
                 .build();
 
         boardRepository.save(board);
@@ -44,7 +44,7 @@ public class BoardService {
 
     //해시태그별 게시글 목록 조회
     public List<CommunityResponseDto.BoardResponseDto> getBoardsByHashTag(HashTagType hashtag) {
-        List<Board> boards = boardRepository.findDistinctByHashtags(hashtag);
+        List<Board> boards = boardRepository.findDistinctByBoardType(hashtag);
         return boards.stream()
                 .map(CommunityResponseDto::fromBoardEntity)
                 .collect(Collectors.toList());
@@ -67,7 +67,7 @@ public class BoardService {
             throw new BusinessException(ExceptionType.ACCESS_DENIED);
         }
 
-        board.update(requestDto.getTitle(), requestDto.getContent(),requestDto.getBoardTypes(),requestDto.getHashtags());
+        board.update(requestDto.getTitle(), requestDto.getContent(),requestDto.getBoardType(),requestDto.getHashtags());
         return CommunityResponseDto.fromBoardEntity(board);
     }
 

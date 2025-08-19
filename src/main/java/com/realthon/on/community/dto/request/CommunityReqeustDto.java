@@ -17,7 +17,7 @@ public class CommunityReqeustDto {
         @NotBlank(message = "제목은 반드시 입력해야 합니다.")
         private String title;
         private String content;
-        private Set<HashTagType> boardTypes;
+        private HashTagType boardType;
         private List<String> hashtags;
     }
 
@@ -30,7 +30,7 @@ public class CommunityReqeustDto {
         @NotBlank(message = "제목은 반드시 입력해야 합니다.")
         private String title;
         private String content;
-        private Set<HashTagType> boardTypes;
+        private HashTagType boardType;
         private List<String> hashtags;
     }
 
