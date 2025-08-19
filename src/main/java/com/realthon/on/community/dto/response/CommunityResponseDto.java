@@ -8,6 +8,7 @@ import com.realthon.on.emotionDiary.dto.response.EmotionDiaryResponseDto;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Set;
 
 public class CommunityResponseDto {
@@ -19,7 +20,8 @@ public class CommunityResponseDto {
         private String title;
         private String content;
         private Long userId;
-        private Set<HashTagType> hashtags;
+        private Set<HashTagType> boardTypes;
+        private List<String> hashtags;
         private LocalDateTime createdAt;
         private LocalDateTime modifiedAt;
 
@@ -31,6 +33,7 @@ public class CommunityResponseDto {
                 .title(board.getTitle())
                 .content(board.getContent())
                 .hashtags(board.getHashtags())
+                .boardTypes(board.getBoardTypes())
                 .createdAt(board.getCreatedAt())
                 .modifiedAt(board.getModifiedAt())
                 .build();

@@ -35,6 +35,7 @@ public class BoardService {
                 .content(request.getContent())
                 .user(user)
                 .hashtags(request.getHashtags())
+                .boardTypes(request.getBoardTypes())
                 .build();
 
         boardRepository.save(board);
@@ -59,7 +60,7 @@ public class BoardService {
             throw new BusinessException(ExceptionType.ACCESS_DENIED);
         }
 
-        board.update(requestDto.getTitle(), requestDto.getContent(),requestDto.getHashtags());
+        board.update(requestDto.getTitle(), requestDto.getContent(),requestDto.getBoardTypes(),requestDto.getHashtags());
         return CommunityResponseDto.fromBoardEntity(board);
     }
 

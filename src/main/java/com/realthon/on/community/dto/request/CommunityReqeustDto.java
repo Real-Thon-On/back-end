@@ -4,6 +4,7 @@ import com.realthon.on.community.entity.HashTagType;
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 
+import java.util.List;
 import java.util.Set;
 
 public class CommunityReqeustDto {
@@ -16,7 +17,8 @@ public class CommunityReqeustDto {
         @NotBlank(message = "제목은 반드시 입력해야 합니다.")
         private String title;
         private String content;
-        private Set<HashTagType> hashtags;
+        private Set<HashTagType> boardTypes;
+        private List<String> hashtags;
     }
 
     @Getter
@@ -28,7 +30,8 @@ public class CommunityReqeustDto {
         @NotBlank(message = "제목은 반드시 입력해야 합니다.")
         private String title;
         private String content;
-        private Set<HashTagType> hashtags;
+        private Set<HashTagType> boardTypes;
+        private List<String> hashtags;
     }
 
     @Getter
