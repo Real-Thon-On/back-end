@@ -7,8 +7,11 @@ import com.realthon.on.ai.groq.dto.response.DiaryAnalyzeResponse;
 import com.realthon.on.ai.groq.dto.response.EvaluateHarmfulnessResponse;
 import com.realthon.on.ai.groq.dto.response.RecommendEventsResponse;
 import com.realthon.on.ai.groq.service.GroqApiService;
+import com.realthon.on.ai.groq.store.DiaryAnalyzeTempStore;
 import com.realthon.on.global.base.response.ResponseBody;
 import com.realthon.on.global.base.response.ResponseUtil;
+import com.realthon.on.global.base.response.exception.BusinessException;
+import com.realthon.on.global.base.response.exception.ExceptionType;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
@@ -32,6 +35,9 @@ public class GroqApiController {
 
     @Autowired
     private GroqApiService groqApiService;
+
+    @Autowired
+    private DiaryAnalyzeTempStore diaryAnalyzeTempStore;
 
     @Operation(
             summary = "문장 유해성 평가",
@@ -76,7 +82,18 @@ public class GroqApiController {
             )
             @RequestBody DiaryAnalyzeRequest request
     ) throws IOException {
-        return ResponseEntity.ok(ResponseUtil.createSuccessResponse(groqApiService.analyzeDiary(request)));
+        DiaryAnalyzeResponse result = groqApiService.analyzeDiary(request);
+        diaryAnalyzeTempStore.save(result);
+        return ResponseEntity.ok(ResponseUtil.createSuccessResponse(result));
+    }
+
+    @GetMapping("/diary/analyze/result")
+    public ResponseEntity<ResponseBody<DiaryAnalyzeResponse>> getLastDiaryAnalysis() {
+        DiaryAnalyzeResponse last = diaryAnalyzeTempStore.getLastResult();
+        if (last == null) {
+            throw new BusinessException(ExceptionType.RESULT_NOT_FOUNT);
+        }
+        return ResponseEntity.ok(ResponseUtil.createSuccessResponse(last));
     }
 
 

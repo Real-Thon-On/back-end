@@ -40,6 +40,7 @@ public enum ExceptionType {
 
     //diary
     DIARY_NOT_FOUND(NOT_FOUND, "D001", "존재하지 않는 일기"),
+    RESULT_NOT_FOUNT(NOT_FOUND, "D001", "최근 분석 결과가 없습니다."),
 
     //board
     BOARD_NOT_FOUND(NOT_FOUND, "B001", "존재하지 않는 게시글"),
