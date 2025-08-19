@@ -26,8 +26,8 @@ public class CommunityResponseDto {
         private List<String> hashtags;
         private LocalDateTime createdAt;
         private LocalDateTime modifiedAt;
-
     }
+
     public static BoardResponseDto fromBoardEntity(Board board) {
         return BoardResponseDto.builder()
                 .boardId(board.getId())
