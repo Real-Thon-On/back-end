@@ -50,6 +50,13 @@ public class BoardService {
                 .collect(Collectors.toList());
     }
 
+    //해시태그별 게시글 목록 조회
+    public CommunityResponseDto.BoardResponseDto getBoard(Long boardId) {
+        Board board = boardRepository.findById(boardId)
+                .orElseThrow(() ->  new BusinessException(ExceptionType.BOARD_NOT_FOUND));
+        return CommunityResponseDto.fromBoardEntity(board);
+    }
+
     //게시글 수정
     @Transactional
     public CommunityResponseDto.BoardResponseDto updateBoard(Long id, CommunityReqeustDto.UpdateBoardRequestDto requestDto, Long authenticatedUserId) {

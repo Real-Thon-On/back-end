@@ -20,6 +20,8 @@ public class CommunityResponseDto {
         private String title;
         private String content;
         private Long userId;
+        private String userName;
+        private String profileImageUrl;
         private Set<HashTagType> boardTypes;
         private List<String> hashtags;
         private LocalDateTime createdAt;
@@ -30,6 +32,8 @@ public class CommunityResponseDto {
         return BoardResponseDto.builder()
                 .boardId(board.getId())
                 .userId(board.getUser().getId())
+                .userName(board.getUser().getUsername())
+                .profileImageUrl(board.getUser().getProfileImageUrl())
                 .title(board.getTitle())
                 .content(board.getContent())
                 .hashtags(board.getHashtags())

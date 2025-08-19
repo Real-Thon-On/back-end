@@ -28,7 +28,7 @@ public class BoardController {
     @Operation(summary = "게시글 생성", description = "새로운 게시글을 생성합니다.")
     @PostMapping
     public ResponseEntity<ResponseBody<CommunityResponseDto.BoardResponseDto>> createDiary(@RequestBody @Valid CommunityReqeustDto.AddBaordRequestDto requestDto,@AuthenticationPrincipal PrincipalDetails principalDetails) {
-        CommunityResponseDto.BoardResponseDto responseDto = boardService.createBoard(requestDto,1L);
+        CommunityResponseDto.BoardResponseDto responseDto = boardService.createBoard(requestDto, principalDetails.getId());
 
         return ResponseEntity.ok(ResponseUtil.createSuccessResponse(responseDto));
     }
@@ -41,6 +41,17 @@ public class BoardController {
         return ResponseEntity.ok(ResponseUtil.createSuccessResponse(boards));
     }
 
+
+
+    @Operation(summary = "게시글 상세 조회", description = "게시글 ID에 해당하는 게시글을 조회합니다.")
+    @GetMapping("/{id}")
+    public ResponseEntity<ResponseBody<CommunityResponseDto.BoardResponseDto>> getBoard(
+            @PathVariable Long id) {
+
+        CommunityResponseDto.BoardResponseDto responseDto = boardService.getBoard(id);
+        return ResponseEntity.ok(ResponseUtil.createSuccessResponse(responseDto));
+    }
+
     @Operation(summary = "게시글 수정", description = "게시글 ID에 해당하는 게시글을 수정합니다.")
     @PutMapping("/{id}")
     public ResponseEntity<ResponseBody<CommunityResponseDto.BoardResponseDto>> updateBoard(
@@ -48,7 +59,7 @@ public class BoardController {
             @RequestBody @Valid CommunityReqeustDto.UpdateBoardRequestDto requestDto,
             @AuthenticationPrincipal PrincipalDetails principalDetails) {
 
-        CommunityResponseDto.BoardResponseDto responseDto = boardService.updateBoard(id, requestDto,1L);
+        CommunityResponseDto.BoardResponseDto responseDto = boardService.updateBoard(id, requestDto,principalDetails.getId());
         return ResponseEntity.ok(ResponseUtil.createSuccessResponse(responseDto));
     }
 

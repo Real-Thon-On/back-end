@@ -13,6 +13,7 @@ import java.util.Set;
 public class EmotionDiaryResponseDto {
         private Long id;
         private Long userId;
+        private String userName;
         private LocalDate date;
         private WeatherType weather;
         private Set<String> hashtags;
@@ -24,6 +25,7 @@ public class EmotionDiaryResponseDto {
                 return EmotionDiaryResponseDto.builder()
                         .id(diary.getId())
                         .userId(diary.getUser().getId())
+                        .userName(diary.getUser().getUsername())
                         .date(diary.getDate())
                         .weather(diary.getWeather())
                         .hashtags(diary.getHashtags())
