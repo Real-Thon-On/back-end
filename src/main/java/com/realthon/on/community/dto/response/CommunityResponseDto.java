@@ -22,7 +22,7 @@ public class CommunityResponseDto {
         private Long userId;
         private String userName;
         private String profileImageUrl;
-        private Set<HashTagType> boardTypes;
+        private HashTagType boardType;
         private List<String> hashtags;
         private LocalDateTime createdAt;
         private LocalDateTime modifiedAt;
@@ -37,7 +37,7 @@ public class CommunityResponseDto {
                 .title(board.getTitle())
                 .content(board.getContent())
                 .hashtags(board.getHashtags())
-                .boardTypes(board.getBoardTypes())
+                .boardType(board.getBoardType())
                 .createdAt(board.getCreatedAt())
                 .modifiedAt(board.getModifiedAt())
                 .build();

@@ -31,35 +31,25 @@ public class Board extends BaseEntity {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @ElementCollection(fetch = FetchType.EAGER,targetClass = HashTagType.class)
-    @CollectionTable(name = "board_types", joinColumns = @JoinColumn(name = "board_id"))
     @Enumerated(EnumType.STRING)
-    private Set<HashTagType> boardTypes = new HashSet<>();
+    private HashTagType boardType;
 
     private List<String> hashtags = new ArrayList<>();
 
     @Builder
-    public Board(User user, String title, String content, Set<HashTagType> boardTypes, List<String> hashtags) {
+    public Board(User user, String title, String content, HashTagType boardType, List<String> hashtags) {
         this.user = user;
         this.title = title;
         this.content = content;
-        this.boardTypes = boardTypes != null ? boardTypes : new HashSet<>();
+        this.boardType = boardType;
         this.hashtags = hashtags != null ? hashtags : new ArrayList<>();
 
     }
 
-    public void update(String title, String content,Set<HashTagType> boardTypes, List<String> hashtags) {
+    public void update(String title, String content,HashTagType boardType, List<String> hashtags) {
         this.title = title;
         this.content = content;
-
-        if (this.boardTypes == null) {
-            this.boardTypes = new HashSet<>();
-        } else {
-            this.boardTypes.clear();
-        }
-        if (boardTypes != null) {
-            this.boardTypes.addAll(boardTypes);
-        }
+        this.boardType=boardType;
 
         if (this.hashtags == null) {
             this.hashtags = new ArrayList<>();

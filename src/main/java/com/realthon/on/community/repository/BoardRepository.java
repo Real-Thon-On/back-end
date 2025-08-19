@@ -9,6 +9,6 @@ import java.util.List;
 
 @Repository
 public interface BoardRepository extends JpaRepository<Board, Long> {
-    List<Board> findDistinctByHashtags(HashTagType hashtag);
+    List<Board> findDistinctByBoardType(HashTagType hashtag);
 }
 
