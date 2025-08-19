@@ -5,8 +5,11 @@ import com.realthon.on.user.entity.User;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Entity
 @Getter
@@ -29,22 +32,40 @@ public class Board extends BaseEntity {
     private User user;
 
     @ElementCollection(fetch = FetchType.EAGER,targetClass = HashTagType.class)
-    @CollectionTable(name = "board_hashtags", joinColumns = @JoinColumn(name = "board_id"))
+    @CollectionTable(name = "board_types", joinColumns = @JoinColumn(name = "board_id"))
     @Enumerated(EnumType.STRING)
-    private Set<HashTagType> hashtags = new HashSet<>();
+    private Set<HashTagType> boardTypes = new HashSet<>();
+
+    private List<String> hashtags = new ArrayList<>();
 
     @Builder
-    public Board(User user, String title, String content, Set<HashTagType> hashtags) {
+    public Board(User user, String title, String content, Set<HashTagType> boardTypes, List<String> hashtags) {
         this.user = user;
         this.title = title;
         this.content = content;
-        this.hashtags = hashtags != null ? hashtags : new HashSet<>();
+        this.boardTypes = boardTypes != null ? boardTypes : new HashSet<>();
+        this.hashtags = hashtags != null ? hashtags : new ArrayList<>();
+
     }
 
-    public void update(String title, String content,Set<HashTagType> hashtags) {
+    public void update(String title, String content,Set<HashTagType> boardTypes, List<String> hashtags) {
         this.title = title;
         this.content = content;
-        this.hashtags.clear();
+
+        if (this.boardTypes == null) {
+            this.boardTypes = new HashSet<>();
+        } else {
+            this.boardTypes.clear();
+        }
+        if (boardTypes != null) {
+            this.boardTypes.addAll(boardTypes);
+        }
+
+        if (this.hashtags == null) {
+            this.hashtags = new ArrayList<>();
+        } else {
+            this.hashtags.clear();
+        }
         if (hashtags != null) {
             this.hashtags.addAll(hashtags);
         }

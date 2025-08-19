@@ -81,19 +81,21 @@ public class PsychoTestResponseDto {
     @Builder
     public static class PsychoResultDto {
         private Long id;
-        private Long userId;
-        private Long testTypeId;
+        private String userName;
+        private String testName;
         private int totalScore;
-        private String resultText;
+        private String resultState;
+        private String resultMessage;
     }
 
     public static PsychoTestResponseDto.PsychoResultDto fromResultEntity(PsychoResult result) {
         return PsychoResultDto.builder()
                 .id(result.getId())
-                .userId(result.getUserId())
-                .testTypeId(result.getTestType().getId())
+                .userName(result.getUser().getUsername())
+                .testName(result.getTestType().getName())
                 .totalScore(result.getTotalScore())
-                .resultText(result.getResultText())
+                .resultState(result.getResultState())
+                .resultMessage(result.getResultMessage())
                 .build();
     }
 

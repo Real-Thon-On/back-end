@@ -26,8 +26,8 @@ public class CommentService {
 
     //댓글 생성
     @Transactional
-    public CommunityResponseDto.CommentResponseDto createComment(Long boardId, CommunityReqeustDto.AddCommentRequestDto request) {
-        User user = userRepository.findById(request.getUserId())
+    public CommunityResponseDto.CommentResponseDto createComment(Long boardId, CommunityReqeustDto.AddCommentRequestDto request, Long id) {
+        User user = userRepository.findById(id)
                 .orElseThrow(() ->  new BusinessException(ExceptionType.USER_NOT_FOUND));
         Board board = boardRepository.findById(boardId)
                 .orElseThrow(() ->  new BusinessException(ExceptionType.BOARD_NOT_FOUND));

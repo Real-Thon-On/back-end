@@ -16,6 +16,8 @@ import com.realthon.on.psychoTest.repository.PsychoChoiceRepository;
 import com.realthon.on.psychoTest.repository.PsychoQuestionRepository;
 import com.realthon.on.psychoTest.repository.PsychoResultRepository;
 import com.realthon.on.psychoTest.repository.PsychoTestTypeRepository;
+import com.realthon.on.user.entity.User;
+import com.realthon.on.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -36,6 +38,7 @@ public class PsychoTestService {
     private final PsychoQuestionRepository questionRepository;
     private final PsychoChoiceRepository choiceRepository;
     private final PsychoResultRepository resultRepository;
+    private final UserRepository userRepository;
 
     public List<PsychoTestResponseDto.TestTypeDto> getTests(TargetType type) {
 
@@ -56,6 +59,9 @@ public class PsychoTestService {
         PsychoTestType testType = testTypeRepository.findById(testId)
                 .orElseThrow(() -> new BusinessException(ExceptionType.TEST_NOT_FOUND));
 
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new BusinessException(ExceptionType.USER_NOT_FOUND));
+
         // 선택지 맵핑
         Map<Long, PsychoChoice> choiceMap = choiceRepository.findByQuestionTestTypeId(testId).stream()
                 .collect(Collectors.toMap(PsychoChoice::getId, c -> c));
@@ -69,33 +75,38 @@ public class PsychoTestService {
         // JSON 문자열 → Map
         //readValue(변환할 JSON 문자열, 어떤 타입으로 변환할지)
         ObjectMapper objectMapper = new ObjectMapper();
-        Map<String, String> resultMap;
+        Map<String, Map<String, String>> resultMap;
         try {
-            resultMap = objectMapper.readValue(testType.getResultMapping(),
-                    new TypeReference<Map<String, String>>() {});
+            resultMap = objectMapper.readValue(
+                    testType.getResultMapping(),
+                    new TypeReference<Map<String, Map<String, String>>>() {}
+            );
         } catch (JsonProcessingException e) {
             log.error("점수 결과 맵핑 에러", e);
             throw new BusinessException(ExceptionType.RESULT_SAVE_FAILED);
         }
 
         // 결과 도출
-        String resultText = null;
+        String resultState = null; // 등급 (정상/위험 등)
+        String resultMessage = null;    // 상세 메시지
         for (String range : resultMap.keySet()) {
             String[] bounds = range.split("-");
             int min = Integer.parseInt(bounds[0]);
             int max = Integer.parseInt(bounds[1]);
             if (totalScore >= min && totalScore <= max) {
-                resultText = resultMap.get(range);
+                resultState = resultMap.get(range).get("resultState");
+                resultMessage = resultMap.get(range).get("resultMessage");
                 break;
             }
         }
 
         // 결과 저장
         PsychoResult result = PsychoResult.builder()
-                .userId(userId)
+                .user(user)
                 .testType(testType)
                 .totalScore(totalScore)
-                .resultText(resultText)
+                .resultState(resultState)
+                .resultMessage(resultMessage)
                 .build();
 
         resultRepository.save(result);

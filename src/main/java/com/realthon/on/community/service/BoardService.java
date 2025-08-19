@@ -26,8 +26,8 @@ public class BoardService {
 
     //게시글 생성
     @Transactional
-    public CommunityResponseDto.BoardResponseDto createBoard(CommunityReqeustDto.AddBaordRequestDto request) {
-        User user = userRepository.findById(request.getUserId())
+    public CommunityResponseDto.BoardResponseDto createBoard(CommunityReqeustDto.AddBaordRequestDto request, Long id) {
+        User user = userRepository.findById(id)
                 .orElseThrow(() ->  new BusinessException(ExceptionType.USER_NOT_FOUND));
 
         Board board = Board.builder()
@@ -35,6 +35,7 @@ public class BoardService {
                 .content(request.getContent())
                 .user(user)
                 .hashtags(request.getHashtags())
+                .boardTypes(request.getBoardTypes())
                 .build();
 
         boardRepository.save(board);
@@ -49,6 +50,13 @@ public class BoardService {
                 .collect(Collectors.toList());
     }
 
+    //해시태그별 게시글 목록 조회
+    public CommunityResponseDto.BoardResponseDto getBoard(Long boardId) {
+        Board board = boardRepository.findById(boardId)
+                .orElseThrow(() ->  new BusinessException(ExceptionType.BOARD_NOT_FOUND));
+        return CommunityResponseDto.fromBoardEntity(board);
+    }
+
     //게시글 수정
     @Transactional
     public CommunityResponseDto.BoardResponseDto updateBoard(Long id, CommunityReqeustDto.UpdateBoardRequestDto requestDto, Long authenticatedUserId) {
@@ -59,7 +67,7 @@ public class BoardService {
             throw new BusinessException(ExceptionType.ACCESS_DENIED);
         }
 
-        board.update(requestDto.getTitle(), requestDto.getContent(),requestDto.getHashtags());
+        board.update(requestDto.getTitle(), requestDto.getContent(),requestDto.getBoardTypes(),requestDto.getHashtags());
         return CommunityResponseDto.fromBoardEntity(board);
     }
 

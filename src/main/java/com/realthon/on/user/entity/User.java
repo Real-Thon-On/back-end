@@ -71,6 +71,7 @@ public class User extends BaseEntity {
     // 닉네임. 사용자명
     private String nickname;
     private String email;
+    private String profileImageUrl;
 
 
     public void updateRole(Role role){

@@ -77,6 +77,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
                     .role(Role.NOT_REGISTERED) // NOT_REGISTERED 이면 회원가입 페이지로 redirect  , NOT_REGISTERED가 아니면 서비스 페이지로 redirect
                     .nickname(oAuth2UserInfo.getNickname())
                     .email(oAuth2UserInfo.getEmail())
+                    .profileImageUrl(oAuth2UserInfo.getProfileImageUrl())
                     .build();
 
             return userRepository.save(unregisteredUser);
