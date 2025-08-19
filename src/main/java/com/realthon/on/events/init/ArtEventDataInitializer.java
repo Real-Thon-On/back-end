@@ -43,6 +43,14 @@ public class ArtEventDataInitializer implements CommandLineRunner {
             log.info("[ArtEventDataInitializer] events.init.enabled=false, skip.");
             return;
         }
+
+        // ✅ 테이블에 데이터가 1건이라도 있으면 전체 초기화 패스
+        long existing = repository.count();
+        if (existing > 0) {
+            log.info("[ArtEventDataInitializer] table already has {} rows, skip init.", existing);
+            return;
+        }
+
         if (csvPath == null || csvPath.isBlank()) {
             log.warn("[ArtEventDataInitializer] csv-path is empty, skip.");
             return;
@@ -91,7 +99,7 @@ public class ArtEventDataInitializer implements CommandLineRunner {
 
                 LocalArtEvent e = mapRecord(rec);
 
-                // title 또는 url 없으면 스킵 (NOT NULL 유지 시 안전)
+                // title 또는 url 없으면 스킵 (NOT NULL 안전)
                 if (isBlank(e.getTitle()) || isBlank(e.getUrl())) {
                     log.warn("[ArtEventDataInitializer] skip row#{}: missing title or url. raw='{}'",
                             rec.getRecordNumber(), truncate(rec.toString(), 200));
@@ -99,14 +107,8 @@ public class ArtEventDataInitializer implements CommandLineRunner {
                     continue;
                 }
 
-                var existingList = repository.findAllByUrl(e.getUrl());
-                if (existingList.isEmpty()) {
-                    buffer.add(e);
-                } else {
-                    var target = existingList.get(0);
-                    merge(target, e);
-                    buffer.add(target);
-                }
+                // ✅ 갱신/병합 로직 제거: 그대로 신규 적재만 수행
+                buffer.add(e);
 
                 if (buffer.size() >= 1000) {
                     repository.saveAll(buffer);
@@ -123,7 +125,7 @@ public class ArtEventDataInitializer implements CommandLineRunner {
 
             if (!buffer.isEmpty()) repository.saveAll(buffer);
 
-            log.info("[ArtEventDataInitializer] rows parsed={}, rows saved/merged={}", parsed, saved);
+            log.info("[ArtEventDataInitializer] rows parsed={}, rows saved={}", parsed, saved);
             log.info("[ArtEventDataInitializer] table total count after init={}", repository.count());
 
         } catch (Exception e) {
@@ -153,24 +155,6 @@ public class ArtEventDataInitializer implements CommandLineRunner {
                 .detailImages(val(r,"detail_images"))
                 .imageCount(intOrNull(val(r,"image_count")))
                 .build();
-    }
-
-
-    /** 기존 값이 있는 필드만 갱신 */
-    private void merge(LocalArtEvent t, LocalArtEvent s) {
-        if (nz(s.getTitle())) t.setTitle(s.getTitle());
-        if (nz(s.getUrl())) t.setUrl(s.getUrl());
-        if (s.getStartDate()!=null) t.setStartDate(s.getStartDate());
-        if (s.getEndDate()!=null) t.setEndDate(s.getEndDate());
-        if (nz(s.getImageUrl())) t.setImageUrl(s.getImageUrl());
-        if (nz(s.getCategories())) t.setCategories(s.getCategories());
-        if (nz(s.getMainCategory())) t.setMainCategory(s.getMainCategory());
-        if (nz(s.getSiteName())) t.setSiteName(s.getSiteName());
-        if (nz(s.getSiteType())) t.setSiteType(s.getSiteType());
-        if (s.getScrapedDate()!=null) t.setScrapedDate(s.getScrapedDate());
-        if (nz(s.getDetailTitle())) t.setDetailTitle(s.getDetailTitle());
-        if (nz(s.getDetailImages())) t.setDetailImages(s.getDetailImages());
-        if (s.getImageCount()!=null) t.setImageCount(s.getImageCount());
     }
 
     private boolean nz(String s) { return s != null && !s.isBlank(); }
