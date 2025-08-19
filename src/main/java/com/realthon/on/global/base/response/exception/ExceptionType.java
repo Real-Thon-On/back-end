@@ -51,8 +51,10 @@ public enum ExceptionType {
     IMAGE_UPLOAD_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "B005", "이미지 업로드 실패"),
 
     //psychoTest
-    TEST_NOT_FOUND(NOT_FOUND, "T001", "존재하지 않는 심리검사"),
-    RESULT_SAVE_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "T002", "심리검사 결과 저장에 실패했습니다");
+
+    //test
+    TEST_NOT_FOUND(NOT_FOUND, "T001", "존재하지 않는 게시글"),
+    RESULT_SAVE_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "T002", "심리검사 결과 저장 실패");
 
     private final HttpStatus status;
     private final String code;

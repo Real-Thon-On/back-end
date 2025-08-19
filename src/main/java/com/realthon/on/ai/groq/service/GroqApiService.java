@@ -75,14 +75,15 @@ public class GroqApiService {
     public DiaryAnalyzeResponse analyzeDiary(DiaryAnalyzeRequest req) {
         String url = "https://api.groq.com/openai/v1/chat/completions";
 
+// (교체) systemPrompt
         String systemPrompt =
                 "You are an emotional analyst and empathetic counselor specialized in analyzing Korean diary texts.\n" +
                         "Goals:\n" +
                         "1) Extract the dominant emotion, emotion intensity scores, valence/arousal values, and main keywords.\n" +
                         "2) Derive a weather metaphor (SUNNY/CLOUDY/RAIN/STORM), an emotional temperature (0~100), and a representative color (hex).\n" +
                         "3) Provide short Korean bullets for good_points(<=3) and improvements(<=3), each item <= 40 chars.\n" +
-                        "4) Provide SUGGESTIONS with four fields (reframing, encouragement, gentle_action_tip, local_cue). All sentences must end with '입니다.'.\n" +
-                        "5) Do not provide medical or legal diagnoses. If any signs of self-harm or harm to others appear, set risk_flag=true and recommend seeking help from professionals.\n" +
+                        "4) Provide SUGGESTIONS with four fields (good, suggest, feedback, total_summary). All sentences must end with '입니다.'.\n" +
+                        "5) Do not provide medical or legal diagnoses. If any signs of self-harm or harm to others appear, set risk_flag=true and recommend seeking help from professionals in the 'feedback'.\n" +
                         "6) Tone: warm but calm Korean; every sentence ends with '입니다.'; no emojis, no exaggerations, no casual tone.\n" +
                         "7) Output format is STRICT: first JSON only, then ONE blank line, then a user-facing reply in Korean (5–9 sentences).\n\n" +
                         "Visualization rules:\n" +
@@ -108,15 +109,15 @@ public class GroqApiService {
                         "  },\n" +
                         "  \"overall_opinion\": \"2~4문장 한국어\",\n" +
                         "  \"suggestions\": {\n" +
-                        "    \"reframing\": \"부드러운 재구성 한 문장, '입니다.'로 끝남\",\n" +
-                        "    \"encouragement\": \"구체적 격려 한 문장, '입니다.'로 끝남\",\n" +
-                        "    \"gentle_action_tip\": \"5~10분 내 실행 가능한 작고 구체적 제안 한 문장, '입니다.'로 끝남\",\n" +
-                        "    \"local_cue\": \"지역 힌트 한 문장 또는 빈 문자열\"\n" +
+                        "    \"good\": \"칭찬·인정 1~2문장, '입니다.'로 끝남\",\n" +
+                        "    \"suggest\": \"작은 행동/관점 제안 1~2문장, '입니다.'로 끝남\",\n" +
+                        "    \"feedback\": \"핵심 피드백 2~4문장, '입니다.'로 끝남. risk_flag=true면 전문가 도움 권유 1문장 포함\",\n" +
+                        "    \"total_summary\": \"1문장, 최대 25자 내외\"\n" +
                         "  }\n" +
                         "}\n\n" +
                         "Rules for suggestions:\n" +
-                        "- All four fields MUST be present.\n" +
-                        "- Empty or null is NOT allowed except local_cue may be an empty string.\n\n" +
+                        "- All four fields MUST be present and non-empty (except total_summary should be <= 25 chars).\n" +
+                        "- Do NOT include other fields or markdown.\n\n" +
                         "After the JSON, insert one blank line, then generate the user-facing Korean reply (5–9 sentences). Include: 1–2 empathy sentences, 1 emotional labeling sentence, 1 gentle reframing sentence, 1 encouragement sentence, and 1 tiny action suggestion (5–10 minutes), all ending with '입니다.'.";
 
         String userPrompt = String.format(Locale.ROOT,
@@ -161,11 +162,15 @@ public class GroqApiService {
         normalizeVisualization(out.getAnalysis());
 
 
+// (교체) suggestions 폴백/보정
         if (out.getSuggestions() == null
-                || isBlank(out.getSuggestions().getReframing())
-                || isBlank(out.getSuggestions().getEncouragement())
-                || isBlank(out.getSuggestions().getGentleActionTip())) {
+                || isBlank(out.getSuggestions().getGood())
+                || isBlank(out.getSuggestions().getSuggest())
+                || isBlank(out.getSuggestions().getFeedback())
+                || isBlank(out.getSuggestions().getTotalSummary())) {
             out.setSuggestions(fallbackSuggestions(out.getAnalysis(), out.getReplyText()));
+        } else {
+            out.getSuggestions().setTotalSummary(limitLen(out.getSuggestions().getTotalSummary(), 25));
         }
 
         // 2) 추천 이벤트(전시회) 내부 호출로 부착
@@ -190,6 +195,14 @@ public class GroqApiService {
 
         return out;
     }
+    // (추가) 길이 보정
+    private String limitLen(String s, int n) {
+        if (s == null) return "";
+        String t = s.trim();
+        return t.length() <= n ? t : t.substring(0, n);
+    }
+
+
     private void normalizeVisualization(DiaryAnalyzeResponse.Analysis a){
         if (a == null) return;
         a.setTemperature((int)Math.round(a.getArousal() * 100.0));
@@ -201,24 +214,41 @@ public class GroqApiService {
         a.setWeather(weather);
     }
 
+    // (교체) 새 스키마 반환
     private DiaryAnalyzeResponse.Suggestions fallbackSuggestions(
             DiaryAnalyzeResponse.Analysis a, String replyText) {
 
         String emo = (a != null && a.getDominantEmotion() != null) ? a.getDominantEmotion() : "감정";
-        String reframing = switch (emo) {
-            case "불안", "anxiety" -> "불안은 준비하려는 마음의 신호이므로 작은 단계를 정리하면 통제감이 회복됩니다.";
-            case "슬픔", "sad"     -> "슬픔은 잃은 것의 가치를 보여주는 감정이므로 스스로를 돌보는 시간이 필요합니다.";
-            case "분노", "anger"   -> "분노는 경계가 필요함을 알려주므로 사실과 요구를 구분해 정리하면 명확해집니다.";
-            case "외로움", "lonely"-> "외로움은 연결을 원하는 신호이므로 가벼운 대화를 시작하는 것만으로도 도움이 됩니다.";
-            case "지침", "tired"   -> "피로는 회복이 우선이므로 짧은 휴식 후 우선순위를 재정리하면 효과적입니다.";
-            default                -> "현재 감정은 의미 있는 신호이므로 작은 단계를 정해 다루면 상황이 정돈됩니다.";
-        };
+        boolean risk = (a != null && a.isRiskFlag());
 
-        var s = new DiaryAnalyzeResponse.Suggestions();
-        s.setReframing(ensureEndsWithImnida(reframing));
-        s.setEncouragement(ensureEndsWithImnida("이미 어려움 속에서도 기록으로 정리했고 이는 회복의 시작입니다."));
-        s.setGentleActionTip(ensureEndsWithImnida("5분간 복식호흡 후 오늘 할 일 한 가지를 메모장에 한 줄로 적습니다."));
-        s.setLocalCue(""); // 지역 데이터 있을 때만 채우십시오.
+        String good = "어려운 순간에도 기록으로 마음을 정리하셨습니다. 스스로의 노력을 인정합니다.";
+        if ("불안".equals(emo) || "anxiety".equalsIgnoreCase(emo)) {
+            good = "불안을 느끼면서도 생각을 일기로 정리하셨습니다. 스스로를 성실히 돌보고 있습니다.";
+        }
+
+        String suggest = "5분간 복식호흡 후 오늘 가장 작은 할 일 한 가지를 메모장에 한 줄로 적습니다.";
+
+        String feedback = switch (emo) {
+            case "불안", "anxiety" ->
+                    "불안은 대비하려는 마음의 신호입니다. 할 일을 세분화하면 통제감이 회복됩니다. 팀과의 소통은 사실·요구·감정을 분리해 전하면 명확해집니다.";
+            case "슬픔", "sad" ->
+                    "슬픔은 잃은 것의 가치를 보여줍니다. 휴식과 지지가 회복을 돕습니다. 감정을 이름 붙이고 필요한 부탁을 한 문장으로 정리해 보세요.";
+            case "분노", "anger" ->
+                    "분노는 경계가 필요하다는 신호입니다. 사실과 판단을 분리해 기록하면 명확해집니다. 요청은 구체적 행동으로 표현해 보세요.";
+            default ->
+                    "현재 감정은 중요한 정보를 줍니다. 하루의 리듬을 단순화하고 우선순위를 1개로 줄이면 집중이 쉬워집니다. 짧은 피드백 루프를 만들면 개선이 빨라집니다.";
+        };
+        if (risk) {
+            feedback += " 필요시 가까운 전문 상담기관이나 도움 자원에 연결을 고려하시기 바랍니다.";
+        }
+
+        String total = limitLen("작게 시작하면 괜찮습니다", 25);
+
+        DiaryAnalyzeResponse.Suggestions s = new DiaryAnalyzeResponse.Suggestions();
+        s.setGood(ensureEndsWithImnida(good));
+        s.setSuggest(ensureEndsWithImnida(suggest));
+        s.setFeedback(ensureEndsWithImnida(feedback));
+        s.setTotalSummary(total);
         return s;
     }
 

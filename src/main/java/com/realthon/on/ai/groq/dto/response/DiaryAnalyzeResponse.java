@@ -61,21 +61,16 @@ public class DiaryAnalyzeResponse {
     }
 
     /* -------------------- LLM 제안 블록 -------------------- */
-    @Data
-    @NoArgsConstructor
-    @AllArgsConstructor
-    @Builder
+    @Data @NoArgsConstructor @AllArgsConstructor @Builder
     @JsonIgnoreProperties(ignoreUnknown = true)
     public static class Suggestions {
-        private String reframing;
-        private String encouragement;
-
-        @JsonProperty("gentle_action_tip")
-        private String gentleActionTip;  // ← getGentleActionTip()로 접근 가능
-
-        @JsonProperty("local_cue")
-        private String localCue;
+        private String good;
+        private String suggest;
+        private String feedback;
+        @JsonProperty("total_summary")
+        private String totalSummary;
     }
+
 
     /* -------------------- 루트 응답 필드 -------------------- */
     private Analysis analysis;                 // LLM 분석
