@@ -12,4 +12,5 @@ public class RecommendedEventDto {
     private String url;
     private String mainCategory;    // 있으면 노출용
     private String matchedKeywords;
+    private String imageUrl;
 }

@@ -45,8 +45,12 @@ public enum ExceptionType {
     BOARD_NOT_FOUND(NOT_FOUND, "B001", "존재하지 않는 게시글"),
     COMMENT_NOT_FOUND(NOT_FOUND, "B002", "존재하지 않는 댓글"),
     LIKE_ALREADY_EXISTS(HttpStatus.CONFLICT, "B003", "이미 좋아요가 존재합니다."),
-    LIKE_NOT_FOUND(HttpStatus.NOT_FOUND, "B004", "좋아요가 존재하지 않습니다.");
-    ;
+    LIKE_NOT_FOUND(HttpStatus.NOT_FOUND, "B004", "좋아요가 존재하지 않습니다."),
+    IMAGE_UPLOAD_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "B005", "이미지 업로드 실패"),
+
+    //psychoTest
+    TEST_NOT_FOUND(NOT_FOUND, "T001", "존재하지 않는 심리검사"),
+    RESULT_SAVE_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "T002", "심리검사 결과 저장에 실패했습니다");
 
 
     private final HttpStatus status;
