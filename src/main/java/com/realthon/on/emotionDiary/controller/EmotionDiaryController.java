@@ -26,8 +26,9 @@ public class EmotionDiaryController {
 
     @Operation(summary = "감정일기 생성", description = "새로운 감정일기를 생성합니다.")
     @PostMapping
-    public ResponseEntity<ResponseBody<EmotionDiaryResponseDto>> createDiary(@RequestBody @Valid EmotionDiaryRequestDto.AddEmotionDiaryRequestDto requestDto) {
-        EmotionDiaryResponseDto responseDto = emotionDiaryService.createDiary(requestDto);
+    public ResponseEntity<ResponseBody<EmotionDiaryResponseDto>> createDiary(@RequestBody @Valid EmotionDiaryRequestDto.AddEmotionDiaryRequestDto requestDto,
+                                                                             @AuthenticationPrincipal PrincipalDetails principalDetails) {
+        EmotionDiaryResponseDto responseDto = emotionDiaryService.createDiary(requestDto,principalDetails.getId());
 
         return ResponseEntity.ok(ResponseUtil.createSuccessResponse(responseDto));
     }

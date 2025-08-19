@@ -16,7 +16,6 @@ public class EmotionDiaryRequestDto {
     @AllArgsConstructor
     @Builder
     public static class AddEmotionDiaryRequestDto {
-        private Long userId;
         private LocalDate date;
         private WeatherType weather;
         private Set<String> hashtags;

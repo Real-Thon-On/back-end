@@ -13,7 +13,6 @@ public class CommunityReqeustDto {
     @AllArgsConstructor
     @Builder
     public static class AddBaordRequestDto {
-        private Long userId;
         @NotBlank(message = "제목은 반드시 입력해야 합니다.")
         private String title;
         private String content;
@@ -38,7 +37,6 @@ public class CommunityReqeustDto {
     @AllArgsConstructor
     @Builder
     public static class AddCommentRequestDto {
-        private Long userId;
         @NotBlank(message = "내용은 반드시 입력해야 합니다.")
         private String content;
     }

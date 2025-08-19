@@ -26,8 +26,8 @@ public class BoardService {
 
     //게시글 생성
     @Transactional
-    public CommunityResponseDto.BoardResponseDto createBoard(CommunityReqeustDto.AddBaordRequestDto request) {
-        User user = userRepository.findById(request.getUserId())
+    public CommunityResponseDto.BoardResponseDto createBoard(CommunityReqeustDto.AddBaordRequestDto request, Long id) {
+        User user = userRepository.findById(id)
                 .orElseThrow(() ->  new BusinessException(ExceptionType.USER_NOT_FOUND));
 
         Board board = Board.builder()

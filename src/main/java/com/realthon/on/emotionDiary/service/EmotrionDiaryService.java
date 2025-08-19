@@ -24,8 +24,8 @@ public class EmotrionDiaryService {
 
     //감정일기 생성
     @Transactional
-    public EmotionDiaryResponseDto createDiary(EmotionDiaryRequestDto.AddEmotionDiaryRequestDto request) {
-        User user = userRepository.findById(request.getUserId())
+    public EmotionDiaryResponseDto createDiary(EmotionDiaryRequestDto.AddEmotionDiaryRequestDto request, Long id) {
+        User user = userRepository.findById(id)
                 .orElseThrow(() -> new BusinessException(ExceptionType.USER_NOT_FOUND));
         EmotionDiary diary = EmotionDiary.builder()
                 .user(user)

@@ -26,8 +26,10 @@ public class CommentController {
 
     @Operation(summary = "댓글 생성", description = "새로운 댓글을 생성합니다.")
     @PostMapping("/api/boards/{boardId}/comments")
-    public ResponseEntity<ResponseBody<CommunityResponseDto.CommentResponseDto>> createComment( @PathVariable Long boardId, @RequestBody @Valid CommunityReqeustDto.AddCommentRequestDto requestDto) {
-        CommunityResponseDto.CommentResponseDto responseDto = commentService.createComment(boardId,requestDto);
+    public ResponseEntity<ResponseBody<CommunityResponseDto.CommentResponseDto>> createComment( @PathVariable Long boardId,
+                                                                                                @RequestBody @Valid CommunityReqeustDto.AddCommentRequestDto requestDto,
+                                                                                                @AuthenticationPrincipal PrincipalDetails principalDetails) {
+        CommunityResponseDto.CommentResponseDto responseDto = commentService.createComment(boardId,requestDto,principalDetails.getId());
 
         return ResponseEntity.ok(ResponseUtil.createSuccessResponse(responseDto));
     }

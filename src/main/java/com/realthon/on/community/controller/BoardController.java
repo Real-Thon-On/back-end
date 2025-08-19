@@ -27,8 +27,8 @@ public class BoardController {
 
     @Operation(summary = "게시글 생성", description = "새로운 게시글을 생성합니다.")
     @PostMapping
-    public ResponseEntity<ResponseBody<CommunityResponseDto.BoardResponseDto>> createDiary(@RequestBody @Valid CommunityReqeustDto.AddBaordRequestDto requestDto) {
-        CommunityResponseDto.BoardResponseDto responseDto = boardService.createBoard(requestDto);
+    public ResponseEntity<ResponseBody<CommunityResponseDto.BoardResponseDto>> createDiary(@RequestBody @Valid CommunityReqeustDto.AddBaordRequestDto requestDto,@AuthenticationPrincipal PrincipalDetails principalDetails) {
+        CommunityResponseDto.BoardResponseDto responseDto = boardService.createBoard(requestDto,principalDetails.getId());
 
         return ResponseEntity.ok(ResponseUtil.createSuccessResponse(responseDto));
     }
